@@ -22,7 +22,6 @@ export class Campfire extends PIXI.Container {
 			// Store custom data for animation
 			(graphics as any).vy = Math.random() * 0.5;
 			(graphics as any).radius = Math.abs(graphics.x);
-			graphics.name = "particle";
 			this.addChild(graphics);
 		}
 	}
@@ -30,7 +29,6 @@ export class Campfire extends PIXI.Container {
 	updateParticles(timeDelta: number) {
 		const updatedDelta = timeDelta * settings.speed;
 		for (const child of this.children) {
-			if (child.name !== "particle") continue;
 			const particle = child as PIXI.Graphics & {
 				vy: number;
 				radius: number;
