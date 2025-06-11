@@ -85,8 +85,18 @@ export class DialogueManager {
 				!char,
 				appWidth - 120, // leave margin for padding
 			);
-			this.dialogueContainer.x = 60;
-			this.dialogueContainer.y = char ? char.y - 80 : appHeight - 540;
+			// Position dialogue cloud: left for left, right for right
+			if (
+				char &&
+				this.data.avatars.find((a) => a.name === displayName)?.position ===
+					"left"
+			) {
+				this.dialogueContainer.x = 60;
+				this.dialogueContainer.y = char.y - 80;
+			} else {
+				this.dialogueContainer.x = appWidth - this.dialogueContainer.width - 60;
+				this.dialogueContainer.y = char ? char.y - 80 : appHeight - 540;
+			}
 			this.app.stage.addChild(this.dialogueContainer);
 		} else if (this.dialogueContainer) {
 			this.dialogueContainer.x = 60;
@@ -121,7 +131,6 @@ export class DialogueManager {
 		}
 		const line = this.data.dialogue[this.dialogueIndex];
 		const { char, displayName } = this.getSpeaker(line);
-		// Use full available width minus margin for initial render
 		const appWidth = this.app.screen.width;
 		const maxWidth = appWidth - 120; // match resizeDialogue
 		this.dialogueContainer = this.renderDialogueLine(
@@ -131,10 +140,19 @@ export class DialogueManager {
 			!char,
 			maxWidth,
 		);
-		this.dialogueContainer.x = 60;
-		this.dialogueContainer.y = char
-			? char.y - 80
-			: this.app.screen.height - 540;
+		// Position dialogue cloud: left for left, right for right
+		if (
+			char &&
+			this.data.avatars.find((a) => a.name === displayName)?.position === "left"
+		) {
+			this.dialogueContainer.x = 60;
+			this.dialogueContainer.y = char.y - 80;
+		} else {
+			this.dialogueContainer.x = appWidth - this.dialogueContainer.width - 60;
+			this.dialogueContainer.y = char
+				? char.y - 80
+				: this.app.screen.height - 540;
+		}
 		this.app.stage.addChild(this.dialogueContainer);
 		this.dialogueIndex++;
 	};
