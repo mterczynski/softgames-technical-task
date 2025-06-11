@@ -108,6 +108,7 @@ async function createBackground() {
 	const background = PIXI.Sprite.from("/assets/bbt-background.jpg");
 	background.width = settings.canvasWidth;
 	background.height = settings.canvasHeight;
+	background.alpha = 0.35;
 
 	return background;
 }
