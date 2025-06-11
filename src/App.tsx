@@ -20,6 +20,13 @@ export const App: React.FC = () => {
 				mod.init();
 			});
 		}
+		if (selected === 3) {
+			// Remove any previous canvas
+			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
+			import("./pixi-projects/3-phoenix-flame/index").then((mod) => {
+				mod.init();
+			});
+		}
 		if (selected === null) {
 			// Clean up when no project is selected
 			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
@@ -30,7 +37,7 @@ export const App: React.FC = () => {
 		return <ProjectSelectionMenu onSelect={setSelected} />;
 	}
 
-	if (selected === 1 || selected === 2) {
+	if (selected === 1 || selected === 2 || selected === 3) {
 		// return null; // Pixi app will be rendered on the DOM
 		return (
 			<div
