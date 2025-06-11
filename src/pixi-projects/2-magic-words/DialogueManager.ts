@@ -43,6 +43,11 @@ export class DialogueManager {
 	}
 
 	public onResize(width: number, height: number) {
+		if (this.dialogueIndex >= this.data.dialogue.length) {
+			// At end screen, do not show any character
+			this.clearDialogue(true);
+			return;
+		}
 		this.resizeCharacter(width, height);
 		this.resizeDialogue(width, height);
 	}
@@ -117,19 +122,19 @@ export class DialogueManager {
 		}
 	}
 
-	private clearDialogue = () => {
+	private clearDialogue = (removeCharacter: boolean = true) => {
 		if (this.dialogueContainer)
 			this.app.stage.removeChild(this.dialogueContainer);
-		if (this.currentSpeaker) {
+		if (removeCharacter && this.currentSpeaker) {
 			this.app.stage.removeChild(this.currentSpeaker);
 			this.currentSpeaker = null;
 		}
 	};
 
-	private getSpeaker(line: MagicWordsApiResponse["dialogue"][number]) {
+	private getSpeaker(line: MagicWordsApiResponse["dialogue"][number], addToStage: boolean = true) {
 		const char = this.characterMap.get(line.name);
 		if (char) {
-			this.app.stage.addChild(char);
+			if (addToStage) this.app.stage.addChild(char);
 			this.currentSpeaker = char;
 			return { char, displayName: line.name };
 		}
