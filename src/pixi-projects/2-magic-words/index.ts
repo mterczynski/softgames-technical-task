@@ -61,7 +61,12 @@ export async function init() {
 			!char,
 		);
 		dialogueContainer.x = 60;
-		dialogueContainer.y = 40;
+		// Move the dialogue much lower, just above the character's head
+		if (char) {
+			dialogueContainer.y = char.y - 80; // 80px above character's y
+		} else {
+			dialogueContainer.y = app.screen.height - 540; // fallback for unknown character
+		}
 		app.stage.addChild(dialogueContainer);
 		dialogueIndex++;
 	}
