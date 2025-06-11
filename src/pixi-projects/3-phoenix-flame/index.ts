@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
+import { Campfire } from "./Campfire";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -11,6 +12,14 @@ export const tweenGroup = new Group();
 
 export async function init() {
 	const app = await initializeApp();
+	const campfire = new Campfire();
+	app.stage.addChild(campfire);
+	campfire.x = settings.canvasWidth / 2;
+	campfire.y = settings.canvasHeight / 2;
+
+	app.ticker.add((delta) => {
+		campfire.updateParticles(delta);
+	});
 
 	return app;
 }
