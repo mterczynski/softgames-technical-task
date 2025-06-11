@@ -13,6 +13,7 @@ export const tweenGroup = new Group();
 export async function init() {
 	const app = await initializeApp();
 	const background = await createBackground();
+	// Use property assignment for maxVisible after construction
 	const cardStack = new CardStack(144);
 	const cardStack2 = new CardStack(0);
 

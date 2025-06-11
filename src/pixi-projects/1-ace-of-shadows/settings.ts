@@ -4,5 +4,6 @@ export const settings = {
 	cardGap: 6,
 	cardWidth: 83,
 	cardHeight: 115,
+	cardStackMaxVisible: 60,
+	flightDuration: 2000,
 };
-
