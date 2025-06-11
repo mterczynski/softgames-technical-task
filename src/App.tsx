@@ -20,6 +20,10 @@ export const App: React.FC = () => {
 				mod.init();
 			});
 		}
+		if (selected === null) {
+			// Clean up when no project is selected
+			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
+		}
 	}, [selected]);
 
 	if (!selected) {
@@ -27,7 +31,18 @@ export const App: React.FC = () => {
 	}
 
 	if (selected === 1 || selected === 2) {
-		return null; // Pixi app will be rendered on the DOM
+		// return null; // Pixi app will be rendered on the DOM
+		return (
+			<div
+				style={{
+					fontSize: 40,
+					cursor: "pointer",
+				}}
+				onClick={() => setSelected(null)}
+			>
+				🔙
+			</div>
+		);
 	}
 
 	// Placeholder for other projects
