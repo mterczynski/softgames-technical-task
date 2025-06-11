@@ -23,8 +23,13 @@ export async function init() {
 	const characterMap = new Map<string, Character>();
 	for (const avatar of data.avatars) {
 		const char = new Character(avatar.name, avatar.url);
-		char.x = avatar.position === "left" ? 100 : app.screen.width - 300;
-		char.y = app.screen.height - 400;
+		// Move 30px closer to the center on x, and 20px higher on y
+		if (avatar.position === "left") {
+			char.x = 100 + 70;
+		} else {
+			char.x = app.screen.width - 300 - 50;
+		}
+		char.y = app.screen.height - 400 - 50;
 		// Do not add to stage yet
 		characterMap.set(avatar.name, char);
 	}
