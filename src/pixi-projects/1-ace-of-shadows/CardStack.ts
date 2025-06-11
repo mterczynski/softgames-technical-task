@@ -39,7 +39,10 @@ export class CardStack extends PIXI.Container {
 	async transferTopCardTo(targetStack: CardStack) {
 		if (this.getLength() === 0) return;
 		const topCard = this.children[this.getLength() - 1] as Card;
+		const globalPosition = this.toGlobal(new PIXI.Point(topCard.x, topCard.y));
 		targetStack.parent.addChild(topCard);
+		topCard.x = globalPosition.x;
+		topCard.y = globalPosition.y;
 
 		await new Promise<void>((resolve) => {
 			new TWEEN.Tween(topCard, tweenGroup)
