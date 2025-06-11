@@ -12,10 +12,11 @@ export async function init() {
 	const background = await createBackground();
 	const cardStack = new PIXI.Container();
 	const cardCount = 144;
+	const stackHeight = cardCount * settings.cardGap;
 	const cards = new Array(cardCount).fill(null).map((_, index) => {
 		const card = new Card();
 		cardStack.addChild(card);
-		card.y = index * 5 // stack cards vertically
+		card.y = stackHeight - index * settings.cardGap // stack cards vertically
 		return card;
 	});
 
@@ -35,8 +36,7 @@ async function createBackground() {
 }
 
 async function initializeApp() {
-	const app = new PIXI.Application();
-	await app.init({
+	const app = new PIXI.Application({
 		width: settings.canvasWidth,
 		height: settings.canvasHeight,
 		view: document.createElement('canvas')
@@ -44,8 +44,7 @@ async function initializeApp() {
 
 	globalThis.__PIXI_APP__ = app;
 
-	const canvas = app.canvas;
-
+	const canvas = app.view as HTMLCanvasElement;
 	document.body.appendChild(canvas);
 	canvas.classList.add("main-canvas");
 	return app;
