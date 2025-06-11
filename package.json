@@ -1,0 +1,22 @@
+{
+  "name": "pixijs-template",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "dependencies": {
+    "pixi.js": "^8.10.1"
+  },
+  "devDependencies": {
+    "jest-extended": "^6.0.0",
+    "jest-raw-loader": "^1.0.1",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.3.4",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
