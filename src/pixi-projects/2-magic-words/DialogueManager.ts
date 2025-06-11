@@ -121,11 +121,15 @@ export class DialogueManager {
 		}
 		const line = this.data.dialogue[this.dialogueIndex];
 		const { char, displayName } = this.getSpeaker(line);
+		// Use full available width minus margin for initial render
+		const appWidth = this.app.screen.width;
+		const maxWidth = appWidth - 120; // match resizeDialogue
 		this.dialogueContainer = this.renderDialogueLine(
 			line.text,
 			this.data.emojies,
 			displayName,
 			!char,
+			maxWidth,
 		);
 		this.dialogueContainer.x = 60;
 		this.dialogueContainer.y = char
@@ -166,18 +170,30 @@ export class DialogueManager {
 			container.addChild(speakerText);
 			y = speakerText.height + 4;
 		}
+		// Improved: Tokenize text into words and emoji tokens for better wrapping
 		const parts = text.split(/({[^}]+})/g).filter(Boolean);
+		let tokens: Array<{ type: "emoji" | "text"; value: string }> = [];
+		for (const part of parts) {
+			const emojiMatch = part.match(/^{(.+)}$/);
+			if (emojiMatch) {
+				tokens.push({ type: "emoji", value: emojiMatch[1] });
+			} else {
+				// Split text into words, keeping spaces
+				const words = part.split(/(\s+)/g).filter(Boolean);
+				for (const word of words) {
+					tokens.push({ type: "text", value: word });
+				}
+			}
+		}
 		let lineY = y;
 		let lineMaxHeight = 0;
 		x = 0;
-		for (const part of parts) {
+		for (const token of tokens) {
 			let displayObj: PIXI.DisplayObject;
 			let partWidth = 0;
 			let partHeight = 0;
-			const emojiMatch = part.match(/^{(.+)}$/);
-			if (emojiMatch) {
-				const emojiName = emojiMatch[1];
-				const emoji = emojies.find((e) => e.name === emojiName);
+			if (token.type === "emoji") {
+				const emoji = emojies.find((e) => e.name === token.value);
 				if (emoji) {
 					const sprite = PIXI.Sprite.from(emoji.url);
 					sprite.width = sprite.height = emojiSize;
@@ -185,23 +201,25 @@ export class DialogueManager {
 					partWidth = emojiSize + 4;
 					partHeight = emojiSize;
 				} else {
-					const fallbackText = `(${emojiName} tone)`;
+					const fallbackText = `(${token.value} tone)`;
 					const textObj = new PIXI.Text(fallbackText, fontStyle);
 					displayObj = textObj;
 					partWidth = textObj.width + 4;
 					partHeight = textObj.height;
 				}
 			} else {
-				const textObj = new PIXI.Text(part, fontStyle);
+				const textObj = new PIXI.Text(token.value, fontStyle);
 				displayObj = textObj;
-				partWidth = textObj.width + 4;
+				partWidth = textObj.width;
 				partHeight = textObj.height;
 			}
-			// Wrap to next line if needed
-			if (x + partWidth > maxWidth - padding) {
-				x = 0;
-				lineY += lineMaxHeight + lineSpacing;
-				lineMaxHeight = 0;
+			// Only wrap if token is not just a space
+			if (token.type !== "text" || token.value.trim() !== "") {
+				if (x + partWidth > maxWidth - padding && x > 0) {
+					x = 0;
+					lineY += lineMaxHeight + lineSpacing;
+					lineMaxHeight = 0;
+				}
 			}
 			displayObj.x = x;
 			displayObj.y = lineY;
