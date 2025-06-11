@@ -123,6 +123,8 @@ function renderDialogueLine(
 	const container = new PIXI.Container();
 	const parts = text.split(/({[^}]+})/g).filter(Boolean);
 	let x = 0;
+	let maxHeight = 0;
+	const elements: PIXI.DisplayObject[] = [];
 	for (const part of parts) {
 		const emojiMatch = part.match(/^{(.+)}$/);
 		if (emojiMatch) {
@@ -133,20 +135,37 @@ function renderDialogueLine(
 				sprite.width = sprite.height = 32;
 				sprite.x = x;
 				container.addChild(sprite);
+				elements.push(sprite);
+				if (sprite.height > maxHeight) maxHeight = sprite.height;
 				x += 36;
 				continue;
 			}
 		}
 		// Render text
 		const textObj = new PIXI.Text(part, {
-			fill: 0xffffff,
+			fill: 0x000000,
 			fontSize: 22,
 			fontFamily: "Arial",
 			fontWeight: "bold",
 		});
 		textObj.x = x;
 		container.addChild(textObj);
+		elements.push(textObj);
+		if (textObj.height > maxHeight) maxHeight = textObj.height;
 		x += textObj.width + 4;
 	}
+	// Add white background behind the text and emojis
+	const padding = 12;
+	const bg = new PIXI.Graphics();
+	bg.beginFill(0xffffff, 1);
+	bg.drawRoundedRect(
+		-padding / 2,
+		-padding / 2,
+		x + padding,
+		maxHeight + padding,
+		12,
+	);
+	bg.endFill();
+	container.addChildAt(bg, 0);
 	return container;
 }
