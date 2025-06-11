@@ -252,8 +252,9 @@ function fadeOutBackgroundAndShowTheEnd(
 			dropShadowColor: 0x000000,
 			dropShadowBlur: 8,
 		});
-		theEndText.x = (app.screen.width - theEndText.width) / 2;
-		theEndText.y = (app.screen.height - theEndText.height) / 2;
+		theEndText.anchor.set(0.5);
+		theEndText.x = app.screen.width / 2;
+		theEndText.y = app.screen.height / 2;
 		theEndText.alpha = 0;
 		app.stage.addChild(theEndText);
 
