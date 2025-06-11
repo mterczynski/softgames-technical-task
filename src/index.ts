@@ -1,11 +1,11 @@
 import * as PIXI from "pixi.js";
-import TWEEN, { Group } from '@tweenjs/tween.js';
+import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { CardStack } from "./CardStack";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
-  var __PIXI_APP__: PIXI.Application | undefined;
+	var __PIXI_APP__: PIXI.Application | undefined;
 }
 
 export const tweenGroup = new Group();
@@ -13,8 +13,8 @@ export const tweenGroup = new Group();
 export async function init() {
 	const app = await initializeApp();
 	const background = await createBackground();
-	const cardStack = new CardStack(40);
-	const cardStack2 = new CardStack(10);
+	const cardStack = new CardStack(144);
+	const cardStack2 = new CardStack(0);
 
 	cardStack2.x = 100;
 
@@ -24,17 +24,20 @@ export async function init() {
 
 	runCardTransferLoop(cardStack, cardStack2);
 
-	return app
+	return app;
 }
 
-async function runCardTransferLoop(cardStack: CardStack, cardStack2: CardStack) {
-	while(cardStack.getLength() > 0) {
+async function runCardTransferLoop(
+	cardStack: CardStack,
+	cardStack2: CardStack,
+) {
+	while (cardStack.getLength() > 0) {
 		await cardStack.transferTopCardTo(cardStack2);
 	}
 }
 
 async function createBackground() {
-	await PIXI.Assets.load("/assets/metal-texture.webp")
+	await PIXI.Assets.load("/assets/metal-texture.webp");
 	const background = PIXI.Sprite.from("/assets/metal-texture.webp");
 	background.width = settings.canvasWidth;
 	background.height = settings.canvasHeight;
@@ -46,7 +49,7 @@ async function initializeApp() {
 	const app = new PIXI.Application({
 		width: settings.canvasWidth,
 		height: settings.canvasHeight,
-		view: document.createElement('canvas')
+		view: document.createElement("canvas"),
 	});
 
 	globalThis.__PIXI_APP__ = app;

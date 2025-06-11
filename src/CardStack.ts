@@ -32,7 +32,7 @@ export class CardStack extends PIXI.Container {
 
 	getHeight() {
 		return this.children.length > 0
-			? this.children.length * settings.cardGap + settings.cardHeight
+			? this.children.length * settings.cardGap
 			: 0;
 	}
 
@@ -46,7 +46,7 @@ export class CardStack extends PIXI.Container {
 				.to(
 					{
 						x: targetStack.x,
-						y: targetStack.y + targetStack.getHeight() - settings.cardHeight,
+						y: targetStack.y + targetStack.getHeight(),
 					},
 					2000,
 				)
