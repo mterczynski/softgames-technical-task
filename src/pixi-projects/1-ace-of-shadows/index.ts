@@ -16,7 +16,8 @@ export async function init() {
 	const cardStack = new CardStack(144);
 	const cardStack2 = new CardStack(0);
 
-	cardStack2.x = 100;
+	cardStack.x = 300;
+	cardStack2.x = 400;
 
 	app.stage.addChild(background);
 	app.stage.addChild(cardStack);
