@@ -70,6 +70,11 @@ export class DialogueManager {
 	}
 
 	private resizeDialogue(appWidth: number, appHeight: number) {
+		// Responsive: use smaller margins and maxWidth on mobile
+		const isMobile = appWidth < 600;
+		const marginX = isMobile ? 12 : 60;
+		const maxWidth = appWidth - marginX * 2;
+		const offsetFromHead = 10;
 		// Re-render dialogue cloud with new width if present
 		if (this.dialogueContainer && this.dialogueIndex > 0) {
 			// Get current dialogue line
@@ -83,7 +88,7 @@ export class DialogueManager {
 				this.data.emojies,
 				displayName,
 				!char,
-				appWidth - 120, // leave margin for padding
+				maxWidth,
 			);
 			// Position dialogue cloud: left for left, right for right
 			if (
@@ -91,16 +96,24 @@ export class DialogueManager {
 				this.data.avatars.find((a) => a.name === displayName)?.position ===
 					"left"
 			) {
-				this.dialogueContainer.x = 60;
-				this.dialogueContainer.y = char.y - 80;
+				this.dialogueContainer.x = marginX;
+				this.dialogueContainer.y =
+					char.y - this.dialogueContainer.height - offsetFromHead;
+			} else if (char) {
+				this.dialogueContainer.x =
+					appWidth - this.dialogueContainer.width - marginX;
+				this.dialogueContainer.y =
+					char.y - this.dialogueContainer.height - offsetFromHead;
 			} else {
-				this.dialogueContainer.x = appWidth - this.dialogueContainer.width - 60;
-				this.dialogueContainer.y = char ? char.y - 80 : appHeight - 540;
+				this.dialogueContainer.x = marginX;
+				this.dialogueContainer.y =
+					appHeight - this.dialogueContainer.height - offsetFromHead;
 			}
 			this.app.stage.addChild(this.dialogueContainer);
 		} else if (this.dialogueContainer) {
-			this.dialogueContainer.x = 60;
-			this.dialogueContainer.y = appHeight - 540;
+			this.dialogueContainer.x = marginX;
+			this.dialogueContainer.y =
+				appHeight - this.dialogueContainer.height - offsetFromHead;
 		}
 	}
 
@@ -132,7 +145,12 @@ export class DialogueManager {
 		const line = this.data.dialogue[this.dialogueIndex];
 		const { char, displayName } = this.getSpeaker(line);
 		const appWidth = this.app.screen.width;
-		const maxWidth = appWidth - 120; // match resizeDialogue
+		const appHeight = this.app.screen.height;
+		// Responsive: use smaller margins and maxWidth on mobile
+		const isMobile = appWidth < 600;
+		const marginX = isMobile ? 12 : 60;
+		const maxWidth = appWidth - marginX * 2;
+		const offsetFromHead = isMobile ? 24 : 80;
 		this.dialogueContainer = this.renderDialogueLine(
 			line.text,
 			this.data.emojies,
@@ -145,16 +163,22 @@ export class DialogueManager {
 			char &&
 			this.data.avatars.find((a) => a.name === displayName)?.position === "left"
 		) {
-			this.dialogueContainer.x = 60;
-			this.dialogueContainer.y = char.y - 80;
+			this.dialogueContainer.x = marginX;
+			this.dialogueContainer.y =
+				char.y - this.dialogueContainer.height - offsetFromHead;
+		} else if (char) {
+			this.dialogueContainer.x =
+				appWidth - this.dialogueContainer.width - marginX;
+			this.dialogueContainer.y =
+				char.y - this.dialogueContainer.height - offsetFromHead;
 		} else {
-			this.dialogueContainer.x = appWidth - this.dialogueContainer.width - 60;
-			this.dialogueContainer.y = char
-				? char.y - 80
-				: this.app.screen.height - 540;
+			this.dialogueContainer.x = marginX;
+			this.dialogueContainer.y =
+				appHeight - this.dialogueContainer.height - offsetFromHead;
 		}
 		this.app.stage.addChild(this.dialogueContainer);
 		this.dialogueIndex++;
+		this.resizeDialogue(appWidth, appHeight);
 	};
 
 	private renderDialogueLine(
@@ -168,10 +192,10 @@ export class DialogueManager {
 		let y = 0;
 		let x = 0;
 		let maxLineWidth = 0;
-		const padding = 12;
-		const lineSpacing = 8;
-		const emojiSize = 32;
-		const fontSize = 22;
+		const padding = 8; // reduce padding for a more compact cloud
+		const lineSpacing = 4; // reduce line spacing
+		const emojiSize = 28; // slightly smaller emojis
+		const fontSize = 20; // slightly smaller font
 		const fontStyle: Partial<PIXI.ITextStyle> = {
 			fill: 0x000000,
 			fontSize,
@@ -258,6 +282,8 @@ export class DialogueManager {
 		);
 		bg.endFill();
 		container.addChildAt(bg, 0);
+
+		// Remove any shifting of children or y offset hacks
 		return container;
 	}
 
