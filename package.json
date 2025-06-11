@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "pixi.js": "^8.10.1"
+    "pixi.js": "^7.4.3"
   },
   "devDependencies": {
     "jest-extended": "^6.0.0",
