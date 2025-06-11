@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { settings } from "./settings";
-import { Card } from "./Card";
+import { CardStack } from "./CardStack";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -10,18 +10,14 @@ declare global {
 export async function init() {
 	const app = await initializeApp();
 	const background = await createBackground();
-	const cardStack = new PIXI.Container();
-	const cardCount = 144;
-	const stackHeight = cardCount * settings.cardGap;
-	const cards = new Array(cardCount).fill(null).map((_, index) => {
-		const card = new Card();
-		cardStack.addChild(card);
-		card.y = stackHeight - index * settings.cardGap // stack cards vertically
-		return card;
-	});
+	const cardStack = new CardStack(40);
+	const cardStack2 = new CardStack(10);
+
+	cardStack2.x = 100;
 
 	app.stage.addChild(background);
 	app.stage.addChild(cardStack);
+	app.stage.addChild(cardStack2);
 
 	return app
 }
