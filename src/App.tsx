@@ -4,32 +4,19 @@ import { ProjectSelectionMenu } from "./ProjectSelectionMenu";
 export const App: React.FC = () => {
 	const [selected, setSelected] = useState<number | null>(null);
 
-	// Only Ace of Shadows launches the Pixi app
 	React.useEffect(() => {
-		if (selected === 1) {
-			// Remove any previous canvas
-			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
-			import("./pixi-projects/1-ace-of-shadows/index").then((mod) => {
+		// Remove any previous canvas
+		document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
+		const projectImports: Record<number, () => Promise<{ init: () => void }>> =
+			{
+				1: () => import("./pixi-projects/1-ace-of-shadows/index"),
+				2: () => import("./pixi-projects/2-magic-words/index"),
+				3: () => import("./pixi-projects/3-phoenix-flame/index"),
+			};
+		if (selected && projectImports[selected]) {
+			projectImports[selected]().then((mod) => {
 				mod.init();
 			});
-		}
-		if (selected === 2) {
-			// Remove any previous canvas
-			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
-			import("./pixi-projects/2-magic-words/index").then((mod) => {
-				mod.init();
-			});
-		}
-		if (selected === 3) {
-			// Remove any previous canvas
-			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
-			import("./pixi-projects/3-phoenix-flame/index").then((mod) => {
-				mod.init();
-			});
-		}
-		if (selected === null) {
-			// Clean up when no project is selected
-			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
 		}
 	}, [selected]);
 
@@ -37,8 +24,7 @@ export const App: React.FC = () => {
 		return <ProjectSelectionMenu onSelect={setSelected} />;
 	}
 
-	if (selected === 1 || selected === 2 || selected === 3) {
-		// return null; // Pixi app will be rendered on the DOM
+	if ([1, 2, 3].includes(selected)) {
 		return (
 			<div
 				style={{
