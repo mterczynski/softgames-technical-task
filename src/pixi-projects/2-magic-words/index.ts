@@ -25,22 +25,31 @@ export async function init() {
 		const char = new Character(avatar.name, avatar.url);
 		char.x = avatar.position === "left" ? 100 : app.screen.width - 300;
 		char.y = app.screen.height - 400;
-		app.stage.addChild(char);
+		// Do not add to stage yet
 		characterMap.set(avatar.name, char);
 	}
 
 	// Dialogue display state
 	let dialogueIndex = 0;
 	let dialogueContainer: PIXI.Container | null = null;
+	let currentSpeaker: Character | null = null;
 
 	function showNextDialogue() {
 		if (dialogueContainer) {
 			app.stage.removeChild(dialogueContainer);
 		}
+		if (currentSpeaker) {
+			app.stage.removeChild(currentSpeaker);
+			currentSpeaker = null;
+		}
 		if (dialogueIndex >= data.dialogue.length) return;
 		const line = data.dialogue[dialogueIndex];
 		const char = characterMap.get(line.name);
-		if (char) char.speak(line.text);
+		if (char) {
+			char.speak(line.text);
+			app.stage.addChild(char);
+			currentSpeaker = char;
+		}
 		dialogueContainer = renderDialogueLine(line.text, data.emojies, line.name);
 		dialogueContainer.x = 60;
 		dialogueContainer.y = 40;
