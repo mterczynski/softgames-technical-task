@@ -25,11 +25,11 @@ export async function init() {
 		const char = new Character(avatar.name, avatar.url);
 		// Move 30px closer to the center on x, and 20px higher on y
 		if (avatar.position === "left") {
-			char.x = 100 + 70;
+			char.x = 170;
 		} else {
-			char.x = app.screen.width - 300 - 50;
+			char.x = app.screen.width - 350;
 		}
-		char.y = app.screen.height - 400 - 50;
+		char.y = app.screen.height - 450;
 		// Do not add to stage yet
 		characterMap.set(avatar.name, char);
 	}
@@ -102,8 +102,6 @@ async function loadData() {
 
 	return jsonDataPromise;
 }
-
-function createCharacters() {}
 
 async function createBackground() {
 	await PIXI.Assets.load("/assets/bbt-background.jpg");
