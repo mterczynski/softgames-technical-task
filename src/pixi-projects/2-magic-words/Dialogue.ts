@@ -21,7 +21,7 @@ export class DialogueManager {
 	private createCharacterMap() {
 		this.characterMap.clear();
 		for (const avatar of this.data.avatars) {
-			const char = new Character(avatar.name, avatar.url);
+			const char = new Character(avatar.url);
 			if (avatar.position === "left") {
 				char.x = 170;
 			} else {
@@ -53,7 +53,6 @@ export class DialogueManager {
 	private getSpeaker(line: MagicWordsApiResponse["dialogue"][number]) {
 		const char = this.characterMap.get(line.name);
 		if (char) {
-			char.speak(line.text);
 			this.app.stage.addChild(char);
 			this.currentSpeaker = char;
 			return { char, displayName: line.name };

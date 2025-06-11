@@ -1,10 +1,7 @@
 import * as PIXI from "pixi.js";
 
 export class Character extends PIXI.Container {
-	constructor(
-		private characterName: string,
-		avatarUrl: string,
-	) {
+	constructor(avatarUrl: string) {
 		super();
 		this.init(avatarUrl);
 	}
@@ -13,10 +10,5 @@ export class Character extends PIXI.Container {
 		const texture = PIXI.Texture.from(avatarUrl);
 		const sprite = new PIXI.Sprite(texture);
 		this.addChild(sprite);
-		// Initialize character properties and visuals here
-	}
-
-	speak(text: string) {
-		console.log(`${this.characterName} says: ${text}`);
 	}
 }
