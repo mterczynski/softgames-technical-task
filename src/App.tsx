@@ -9,7 +9,7 @@ export const App: React.FC = () => {
 		if (selected === 1) {
 			// Remove any previous canvas
 			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
-			import("./index").then((mod) => {
+			import("./pixi-projects/1-ace-of-shadows/index").then((mod) => {
 				mod.init();
 			});
 		}
