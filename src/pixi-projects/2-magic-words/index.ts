@@ -45,12 +45,21 @@ export async function init() {
 		if (dialogueIndex >= data.dialogue.length) return;
 		const line = data.dialogue[dialogueIndex];
 		const char = characterMap.get(line.name);
+		let displayName = line.name;
 		if (char) {
 			char.speak(line.text);
 			app.stage.addChild(char);
 			currentSpeaker = char;
+		} else {
+			// Fallback: render name as text above the dialogue
+			displayName = line.name;
 		}
-		dialogueContainer = renderDialogueLine(line.text, data.emojies, line.name);
+		dialogueContainer = renderDialogueLine(
+			line.text,
+			data.emojies,
+			displayName,
+			!char,
+		);
 		dialogueContainer.x = 60;
 		dialogueContainer.y = 40;
 		app.stage.addChild(dialogueContainer);
@@ -119,8 +128,22 @@ function renderDialogueLine(
 	text: string,
 	emojies: MagicWordsApiResponse["emojies"],
 	speaker: string,
+	showSpeakerName = false,
 ): PIXI.Container {
 	const container = new PIXI.Container();
+	let y = 0;
+	if (showSpeakerName) {
+		const speakerText = new PIXI.Text(`${speaker}:`, {
+			fill: 0x000000,
+			fontSize: 18,
+			fontFamily: "Arial",
+			fontWeight: "bold",
+		});
+		speakerText.x = 0;
+		speakerText.y = 0;
+		container.addChild(speakerText);
+		y = speakerText.height + 4;
+	}
 	const parts = text.split(/({[^}]+})/g).filter(Boolean);
 	let x = 0;
 	let maxHeight = 0;
@@ -134,10 +157,27 @@ function renderDialogueLine(
 				const sprite = PIXI.Sprite.from(emoji.url);
 				sprite.width = sprite.height = 32;
 				sprite.x = x;
+				sprite.y = y;
 				container.addChild(sprite);
 				elements.push(sprite);
 				if (sprite.height > maxHeight) maxHeight = sprite.height;
 				x += 36;
+				continue;
+			} else {
+				// Unknown emoji: render as (emojiName tone)
+				const fallbackText = `(${emojiName} tone)`;
+				const textObj = new PIXI.Text(fallbackText, {
+					fill: 0x000000,
+					fontSize: 22,
+					fontFamily: "Arial",
+					fontWeight: "bold",
+				});
+				textObj.x = x;
+				textObj.y = y;
+				container.addChild(textObj);
+				elements.push(textObj);
+				if (textObj.height > maxHeight) maxHeight = textObj.height;
+				x += textObj.width + 4;
 				continue;
 			}
 		}
@@ -149,6 +189,7 @@ function renderDialogueLine(
 			fontWeight: "bold",
 		});
 		textObj.x = x;
+		textObj.y = y;
 		container.addChild(textObj);
 		elements.push(textObj);
 		if (textObj.height > maxHeight) maxHeight = textObj.height;
@@ -162,7 +203,7 @@ function renderDialogueLine(
 		-padding / 2,
 		-padding / 2,
 		x + padding,
-		maxHeight + padding,
+		maxHeight + padding + y,
 		12,
 	);
 	bg.endFill();
