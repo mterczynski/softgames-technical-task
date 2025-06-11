@@ -38,6 +38,7 @@ export const App: React.FC = () => {
 		);
 	}
 
+	console.error("Unsupported project selected:", selected);
 	// Placeholder for other projects
 	return (
 		<div style={{ color: "#fff", textAlign: "center", marginTop: "20vh" }}>
