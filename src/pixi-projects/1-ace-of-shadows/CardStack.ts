@@ -31,7 +31,10 @@ export class CardStack extends PIXI.Container {
 	}
 
 	private showPlusText(extra: number) {
-		if (this.plusText) this.removeChild(this.plusText);
+		if (this.plusText) {
+			this.plusText.text = `+${extra}`;
+			return;
+		}
 		this.plusText = new PIXI.Text(`+${extra}`, {
 			fill: 0xffffff,
 			fontSize: 28,
@@ -40,7 +43,7 @@ export class CardStack extends PIXI.Container {
 			strokeThickness: 4,
 			align: "center",
 		});
-		this.plusText.anchor.set(0, 0);
+		this.plusText.anchor.set(0.5, 0);
 		this.plusText.x = this.width / 2;
 		this.plusText.y = 0;
 		this.addChild(this.plusText);
@@ -88,6 +91,22 @@ export class CardStack extends PIXI.Container {
 		topCard.x = globalPosition.x;
 		topCard.y = globalPosition.y;
 
+		// Only decrement plusText once per transfer, and do not call init here
+		let skipRemove = false;
+		if (this.plusText) {
+			const extra = parseInt(this.plusText.text.slice(1));
+			if (extra > 1) {
+				this.showPlusText(extra - 1);
+				skipRemove = true;
+			} else {
+				this.removeChild(this.plusText);
+				this.plusText = null;
+			}
+		}
+		if (!skipRemove) {
+			this.removeChild(topCard);
+		}
+
 		await new Promise<void>((resolve) => {
 			new TWEEN.Tween(topCard, tweenGroup)
 				.to(
@@ -102,8 +121,8 @@ export class CardStack extends PIXI.Container {
 					targetStack.parent.removeChild(topCard);
 					topCard.destroy();
 					targetStack.appendCard();
-					// Only remove one card from this stack
-					this.init(this.getLength());
+					// Only update stack visuals if plusText was removed
+					if (!skipRemove) this.init(this.getLength());
 					resolve();
 				})
 				.start();
