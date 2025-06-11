@@ -23,7 +23,7 @@ export const ProjectSelectionMenu: React.FC<{
 			}}
 		>
 			<h1>Choose a Project</h1>
-			<ul style={{ listStyle: "none", padding: 0, width: 320 }}>
+			<ul style={{ listStyle: "none", padding: 0, width: 280 }}>
 				{PROJECTS.map((project) => (
 					<li key={project.id} style={{ margin: "1rem 0" }}>
 						<button
