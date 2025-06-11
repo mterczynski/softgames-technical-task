@@ -3,6 +3,7 @@ import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { MagicWordsApiResponse } from "./apiTypes";
 import { Character } from "./Character";
+import TWEEN from "@tweenjs/tween.js";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -47,7 +48,11 @@ export async function init() {
 			app.stage.removeChild(currentSpeaker);
 			currentSpeaker = null;
 		}
-		if (dialogueIndex >= data.dialogue.length) return;
+		if (dialogueIndex >= data.dialogue.length) {
+			// All dialogue finished: fade out background, then fade in "The end"
+			fadeOutBackgroundAndShowTheEnd(app, background);
+			return;
+		}
 		const line = data.dialogue[dialogueIndex];
 		const char = characterMap.get(line.name);
 		let displayName = line.name;
@@ -218,4 +223,45 @@ function renderDialogueLine(
 	bg.endFill();
 	container.addChildAt(bg, 0);
 	return container;
+}
+
+function fadeOutBackgroundAndShowTheEnd(
+	app: PIXI.Application,
+	background: PIXI.Sprite,
+) {
+	// Fade out background over 2 seconds using tween
+	const fadeDuration = 2000;
+	const theEndDuration = 3000;
+
+	new TWEEN.Tween(background, tweenGroup)
+		.to({ alpha: 0 }, fadeDuration)
+		.easing(TWEEN.Easing.Quadratic.Out)
+		.onComplete(() => {
+			showTheEnd();
+		})
+		.start();
+
+	function showTheEnd() {
+		const theEndText = new PIXI.Text("The end", {
+			fill: 0xffffff,
+			fontSize: 64,
+			fontWeight: "bold",
+			fontFamily: "Arial",
+			align: "center",
+			dropShadow: true,
+			dropShadowColor: 0x000000,
+			dropShadowBlur: 8,
+		});
+		theEndText.x = (app.screen.width - theEndText.width) / 2;
+		theEndText.y = (app.screen.height - theEndText.height) / 2;
+		theEndText.alpha = 0;
+		app.stage.addChild(theEndText);
+
+		console.log("showTheEnd called");
+
+		new TWEEN.Tween(theEndText, tweenGroup)
+			.to({ alpha: 1 }, theEndDuration)
+			.easing(TWEEN.Easing.Quadratic.InOut)
+			.start();
+	}
 }
