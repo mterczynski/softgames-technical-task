@@ -107,7 +107,7 @@ export class DialogueManager {
 			} else {
 				this.dialogueContainer.x = marginX;
 				this.dialogueContainer.y =
-					appHeight - this.dialogueContainer.height - offsetFromHead;
+					(appHeight - this.dialogueContainer.height) / 2; // Center the dialogue cloud vertically if there is no character
 			}
 			this.app.stage.addChild(this.dialogueContainer);
 		} else if (this.dialogueContainer) {
@@ -174,7 +174,7 @@ export class DialogueManager {
 		} else {
 			this.dialogueContainer.x = marginX;
 			this.dialogueContainer.y =
-				appHeight - this.dialogueContainer.height - offsetFromHead;
+				(appHeight - this.dialogueContainer.height) / 2; // Center the dialogue cloud vertically if there is no character
 		}
 		this.app.stage.addChild(this.dialogueContainer);
 		this.dialogueIndex++;
