@@ -3,6 +3,6 @@ export const settings = {
 	canvasHeight: 800,
 	apiUrl:
 		"https://private-624120-softgamesassignment.apiary-mock.com/v2/magicwords",
-	backgroundFadeOutDurationMs: 2000,
-	theEndFadeInDurationMs: 3000,
+	backgroundFadeOutDurationMs: 1400,
+	theEndFadeInDurationMs: 1800,
 };
