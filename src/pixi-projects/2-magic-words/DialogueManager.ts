@@ -10,6 +10,7 @@ export class DialogueManager {
 	private dialogueIndex = 0;
 	private dialogueContainer: PIXI.Container | null = null;
 	private currentSpeaker: Character | null = null;
+	private theEndText: PIXI.Text | null = null;
 
 	constructor(
 		private app: PIXI.Application,
@@ -44,8 +45,27 @@ export class DialogueManager {
 
 	public onResize(width: number, height: number) {
 		if (this.dialogueIndex >= this.data.dialogue.length) {
-			// At end screen, do not show any character
+			// At end screen, do not show any character or dialogue
 			this.clearDialogue(true);
+			// Also resize 'The end' text if present
+			const endText = this.app.stage.children.find(
+				(child) => child instanceof PIXI.Text && child.text === "The end",
+			) as PIXI.Text | undefined;
+			if (endText) {
+				const fontSize = Math.max(32, Math.min(96, Math.floor(width * 0.08)));
+				endText.style = new PIXI.TextStyle({
+					fill: 0xffffff,
+					fontSize,
+					fontWeight: "bold",
+					fontFamily: "Arial",
+					align: "center",
+					dropShadow: true,
+					dropShadowColor: 0x000000,
+					dropShadowBlur: 8,
+				});
+				endText.x = width / 2;
+				endText.y = height / 2;
+			}
 			return;
 		}
 		this.resizeCharacter(width, height);
@@ -131,7 +151,10 @@ export class DialogueManager {
 		}
 	};
 
-	private getSpeaker(line: MagicWordsApiResponse["dialogue"][number], addToStage: boolean = true) {
+	private getSpeaker(
+		line: MagicWordsApiResponse["dialogue"][number],
+		addToStage: boolean = true,
+	) {
 		const char = this.characterMap.get(line.name);
 		if (char) {
 			if (addToStage) this.app.stage.addChild(char);
@@ -304,9 +327,17 @@ export class DialogueManager {
 	}
 
 	private showTheEnd() {
-		const theEndText = new PIXI.Text("The end", {
+		const appWidth = this.app.screen.width;
+		const appHeight = this.app.screen.height;
+		// Remove any previous 'The end' text
+		if (this.theEndText && this.theEndText.parent) {
+			this.theEndText.parent.removeChild(this.theEndText);
+		}
+		// Responsive font size: clamp between 32 and 96, scale with width
+		const fontSize = Math.max(32, Math.min(96, Math.floor(appWidth * 0.08)));
+		this.theEndText = new PIXI.Text("The end", {
 			fill: 0xffffff,
-			fontSize: 64,
+			fontSize,
 			fontWeight: "bold",
 			fontFamily: "Arial",
 			align: "center",
@@ -314,12 +345,12 @@ export class DialogueManager {
 			dropShadowColor: 0x000000,
 			dropShadowBlur: 8,
 		});
-		theEndText.anchor.set(0.5);
-		theEndText.x = this.app.screen.width / 2;
-		theEndText.y = this.app.screen.height / 2;
-		theEndText.alpha = 0;
-		this.app.stage.addChild(theEndText);
-		new TWEEN.Tween(theEndText, tweenGroup)
+		this.theEndText.anchor.set(0.5);
+		this.theEndText.x = appWidth / 2;
+		this.theEndText.y = appHeight / 2;
+		this.theEndText.alpha = 0;
+		this.app.stage.addChild(this.theEndText);
+		new TWEEN.Tween(this.theEndText, tweenGroup)
 			.to({ alpha: 1 }, settings.theEndFadeInDurationMs)
 			.easing(TWEEN.Easing.Quadratic.InOut)
 			.start();
