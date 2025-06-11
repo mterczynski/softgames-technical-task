@@ -1,6 +1,13 @@
-# PixiJS + Vite + TypeScript + Jest template
+# Softgames technical task
 
-A template for new PixiJS projects.
+A 24h code challenge from Softgames
+
+## Setup
+
+```bash
+npm i;
+npm start;
+```
 
 ## Formatting
 
