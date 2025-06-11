@@ -44,10 +44,10 @@ export class DialogueManager {
 
 	public onResize(width: number, height: number) {
 		this.resizeCharacter(width, height);
-		this.resizeDialogue(height);
+		this.resizeDialogue(width, height);
 	}
 
-	private resizeCharacter(width: number, height: number) {
+	private resizeCharacter(appWidth: number, appHeight: number) {
 		// Use a percentage of width, clamped to sensible min/max pixel values
 		const MIN_MARGIN_WIDTH_PERCENTAGE = 0.08;
 		const MIN_MARGIN_PX = 24;
@@ -58,25 +58,39 @@ export class DialogueManager {
 			if (!avatar) continue;
 			const margin = Math.max(
 				MIN_MARGIN_PX,
-				Math.min(width * MIN_MARGIN_WIDTH_PERCENTAGE, MAX_MARGIN),
+				Math.min(appWidth * MIN_MARGIN_WIDTH_PERCENTAGE, MAX_MARGIN),
 			);
 			if (avatar.position === "left") {
 				character.x = margin; // margin from left edge
 			} else {
-				character.x = width - CHARACTER_WIDTH - margin; // margin from right edge
+				character.x = appWidth - CHARACTER_WIDTH - margin; // margin from right edge
 			}
-			character.y = height - 450;
+			character.y = appHeight - 450;
 		}
 	}
 
-	private resizeDialogue(height: number) {
-		// Move dialogue cloud if present
-		if (this.dialogueContainer && this.currentSpeaker) {
+	private resizeDialogue(appWidth: number, appHeight: number) {
+		// Re-render dialogue cloud with new width if present
+		if (this.dialogueContainer && this.dialogueIndex > 0) {
+			// Get current dialogue line
+			const line = this.data.dialogue[this.dialogueIndex - 1];
+			const { char, displayName } = this.getSpeaker(line);
+			// Remove old container
+			this.app.stage.removeChild(this.dialogueContainer);
+			// Re-render with new width
+			this.dialogueContainer = this.renderDialogueLine(
+				line.text,
+				this.data.emojies,
+				displayName,
+				!char,
+				appWidth - 120, // leave margin for padding
+			);
 			this.dialogueContainer.x = 60;
-			this.dialogueContainer.y = this.currentSpeaker.y - 80;
+			this.dialogueContainer.y = char ? char.y - 80 : appHeight - 540;
+			this.app.stage.addChild(this.dialogueContainer);
 		} else if (this.dialogueContainer) {
 			this.dialogueContainer.x = 60;
-			this.dialogueContainer.y = height - 540;
+			this.dialogueContainer.y = appHeight - 540;
 		}
 	}
 
@@ -126,74 +140,84 @@ export class DialogueManager {
 		emojies: MagicWordsApiResponse["emojies"],
 		speaker: string,
 		showSpeakerName = false,
+		maxWidth: number = 480, // default fallback
 	): PIXI.Container {
 		const container = new PIXI.Container();
 		let y = 0;
+		let x = 0;
+		let maxLineWidth = 0;
+		const padding = 12;
+		const lineSpacing = 8;
+		const emojiSize = 32;
+		const fontSize = 22;
+		const fontStyle: Partial<PIXI.ITextStyle> = {
+			fill: 0x000000,
+			fontSize,
+			fontFamily: "Arial",
+			fontWeight: "bold",
+		};
 		if (showSpeakerName) {
 			const speakerText = new PIXI.Text(`${speaker}:`, {
-				fill: 0x000000,
+				...fontStyle,
 				fontSize: 18,
-				fontFamily: "Arial",
-				fontWeight: "bold",
-			});
+			} as Partial<PIXI.ITextStyle>);
 			speakerText.x = 0;
 			speakerText.y = 0;
 			container.addChild(speakerText);
 			y = speakerText.height + 4;
 		}
 		const parts = text.split(/({[^}]+})/g).filter(Boolean);
-		let x = 0;
-		let maxHeight = 0;
+		let lineY = y;
+		let lineMaxHeight = 0;
+		x = 0;
 		for (const part of parts) {
+			let displayObj: PIXI.DisplayObject;
+			let partWidth = 0;
+			let partHeight = 0;
 			const emojiMatch = part.match(/^{(.+)}$/);
 			if (emojiMatch) {
 				const emojiName = emojiMatch[1];
 				const emoji = emojies.find((e) => e.name === emojiName);
 				if (emoji) {
 					const sprite = PIXI.Sprite.from(emoji.url);
-					sprite.width = sprite.height = 32;
-					sprite.x = x;
-					sprite.y = y;
-					container.addChild(sprite);
-					if (sprite.height > maxHeight) maxHeight = sprite.height;
-					x += 36;
-					continue;
+					sprite.width = sprite.height = emojiSize;
+					displayObj = sprite;
+					partWidth = emojiSize + 4;
+					partHeight = emojiSize;
 				} else {
 					const fallbackText = `(${emojiName} tone)`;
-					const textObj = new PIXI.Text(fallbackText, {
-						fill: 0x000000,
-						fontSize: 22,
-						fontFamily: "Arial",
-						fontWeight: "bold",
-					});
-					textObj.x = x;
-					textObj.y = y;
-					container.addChild(textObj);
-					if (textObj.height > maxHeight) maxHeight = textObj.height;
-					x += textObj.width + 4;
-					continue;
+					const textObj = new PIXI.Text(fallbackText, fontStyle);
+					displayObj = textObj;
+					partWidth = textObj.width + 4;
+					partHeight = textObj.height;
 				}
+			} else {
+				const textObj = new PIXI.Text(part, fontStyle);
+				displayObj = textObj;
+				partWidth = textObj.width + 4;
+				partHeight = textObj.height;
 			}
-			const textObj = new PIXI.Text(part, {
-				fill: 0x000000,
-				fontSize: 22,
-				fontFamily: "Arial",
-				fontWeight: "bold",
-			});
-			textObj.x = x;
-			textObj.y = y;
-			container.addChild(textObj);
-			if (textObj.height > maxHeight) maxHeight = textObj.height;
-			x += textObj.width + 4;
+			// Wrap to next line if needed
+			if (x + partWidth > maxWidth - padding) {
+				x = 0;
+				lineY += lineMaxHeight + lineSpacing;
+				lineMaxHeight = 0;
+			}
+			displayObj.x = x;
+			displayObj.y = lineY;
+			container.addChild(displayObj);
+			x += partWidth;
+			if (partHeight > lineMaxHeight) lineMaxHeight = partHeight;
+			if (x > maxLineWidth) maxLineWidth = x;
 		}
-		const padding = 12;
+		const totalHeight = lineY + lineMaxHeight + padding / 2;
 		const bg = new PIXI.Graphics();
 		bg.beginFill(0xffffff, 1);
 		bg.drawRoundedRect(
 			-padding / 2,
 			-padding / 2,
-			x + padding,
-			maxHeight + padding + y,
+			Math.max(maxLineWidth + padding, 120),
+			totalHeight,
 			12,
 		);
 		bg.endFill();
