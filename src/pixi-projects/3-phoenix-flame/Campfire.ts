@@ -13,17 +13,18 @@ export class Campfire extends PIXI.Container {
 		this.removeChildren();
 		for (let i = 0; i < settings.particleCount; i++) {
 			const size = Math.random() * 4 + 4;
-			const graphics = new PIXI.Graphics();
-			graphics.beginFill(0xff6600, 0.5 + Math.random() * 0.5);
-			graphics.drawCircle(0, 0, size);
-			graphics.endFill();
-			graphics.x = Math.random() * settings.campfireWidth;
-			graphics.y = Math.random() * settings.fireHeight;
-			graphics.blendMode = PIXI.BLEND_MODES.ADD; // Set additive blending
+			const particle = new PIXI.Graphics();
+			particle.beginFill(0xff6600, 0.5 + Math.random() * 0.5);
+			particle.drawCircle(0, 0, size);
+			particle.endFill();
+			particle.x = Math.random() * settings.campfireWidth;
+			particle.y = Math.random() * settings.fireHeight;
+			particle.blendMode = PIXI.BLEND_MODES.ADD; // Set additive blending
 			// Store custom data for animation
-			(graphics as any).vy = Math.random() * 0.5;
-			(graphics as any).radius = Math.abs(graphics.x);
-			this.addChild(graphics);
+			(particle as any).vy = Math.random() * 0.5;
+			(particle as any).radius = Math.abs(particle.x);
+			particle.alpha = 0;
+			this.addChild(particle);
 		}
 	}
 
