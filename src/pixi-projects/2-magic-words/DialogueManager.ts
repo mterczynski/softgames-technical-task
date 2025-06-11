@@ -48,12 +48,9 @@ export class DialogueManager {
 			// At end screen, do not show any character or dialogue
 			this.clearDialogue(true);
 			// Also resize 'The end' text if present
-			const endText = this.app.stage.children.find(
-				(child) => child instanceof PIXI.Text && child.text === "The end",
-			) as PIXI.Text | undefined;
-			if (endText) {
+			if (this.theEndText) {
 				const fontSize = Math.max(32, Math.min(96, Math.floor(width * 0.08)));
-				endText.style = new PIXI.TextStyle({
+				this.theEndText.style = new PIXI.TextStyle({
 					fill: 0xffffff,
 					fontSize,
 					fontWeight: "bold",
@@ -63,8 +60,8 @@ export class DialogueManager {
 					dropShadowColor: 0x000000,
 					dropShadowBlur: 8,
 				});
-				endText.x = width / 2;
-				endText.y = height / 2;
+				this.theEndText.x = width / 2;
+				this.theEndText.y = height / 2;
 			}
 			return;
 		}
