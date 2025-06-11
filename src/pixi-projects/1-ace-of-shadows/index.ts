@@ -34,6 +34,9 @@ async function runCardTransferLoop(
 	cardStack2: CardStack,
 ) {
 	while (cardStack.getLength() > 0) {
+		await new Promise((resolve) =>
+			setTimeout(resolve, settings.transferInterval),
+		);
 		await cardStack.transferTopCardTo(cardStack2);
 	}
 }
