@@ -26,19 +26,9 @@ export const App: React.FC = () => {
 			const root = document.getElementById("root");
 			if (root && !document.fullscreenElement) {
 				// Use requestFullscreen on body for maximum compatibility
-				document.body.requestFullscreen().catch(() => {});
-				// Set styles after entering fullscreen
-				setTimeout(() => {
-					document.body.style.background = "#222";
-					document.body.style.overflow = "hidden";
-					document.documentElement.style.background = "#222";
-					document.documentElement.style.overflow = "hidden";
-					if (root) {
-						root.style.display = "block";
-						root.style.width = "100vw";
-						root.style.height = "100vh";
-					}
-				}, 100);
+				document.body.requestFullscreen().catch((err) => {
+					console.error("Error attempting to enable fullscreen mode:", err);
+				});
 			}
 		}
 	}, [selected]);
