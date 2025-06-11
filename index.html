@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -13,12 +13,19 @@
 				transform: translate(-50%, -50%);
 			}
 
+			html,
 			body {
-				background: black;
+				height: 100%;
+				margin: 0;
+				background: #222;
+			}
+			#root {
+				height: 100vh;
 			}
 		</style>
 	</head>
 	<body>
-		<script type="module" src="/src/index.ts"></script>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
 	</body>
 </html>
