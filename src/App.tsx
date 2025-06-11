@@ -13,13 +13,20 @@ export const App: React.FC = () => {
 				mod.init();
 			});
 		}
+		if (selected === 2) {
+			// Remove any previous canvas
+			document.querySelectorAll(".main-canvas").forEach((el) => el.remove());
+			import("./pixi-projects/2-magic-words/index").then((mod) => {
+				mod.init();
+			});
+		}
 	}, [selected]);
 
 	if (!selected) {
 		return <ProjectSelectionMenu onSelect={setSelected} />;
 	}
 
-	if (selected === 1) {
+	if (selected === 1 || selected === 2) {
 		return null; // Pixi app will be rendered on the DOM
 	}
 

@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
-import { CardStack } from "./CardStack";
+import { MagicWordsApiResponse } from "./apiTypes";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -11,30 +11,35 @@ declare global {
 export const tweenGroup = new Group();
 
 export async function init() {
+	const dataPromise = loadData();
 	const app = await initializeApp();
 	const background = await createBackground();
-	const cardStack = new CardStack(144);
-	const cardStack2 = new CardStack(0);
-
-	cardStack2.x = 100;
 
 	app.stage.addChild(background);
-	app.stage.addChild(cardStack);
-	app.stage.addChild(cardStack2);
 
-	runCardTransferLoop(cardStack, cardStack2);
+	await dataPromise;
 
 	return app;
 }
 
-async function runCardTransferLoop(
-	cardStack: CardStack,
-	cardStack2: CardStack,
-) {
-	while (cardStack.getLength() > 0) {
-		await cardStack.transferTopCardTo(cardStack2);
-	}
+async function loadData() {
+	const data = await fetch(settings.apiUrl);
+	const jsonDataPromise = data.json();
+
+	// preload avatars and emojies
+	jsonDataPromise.then((data: MagicWordsApiResponse) => {
+		data.avatars.forEach((avatar) => {
+			fetch(avatar.url);
+		});
+		data.emojies.forEach((emoji) => {
+			fetch(emoji.url);
+		});
+	});
+
+	return jsonDataPromise;
 }
+
+function createCharacters() {}
 
 async function createBackground() {
 	await PIXI.Assets.load("/assets/metal-texture.webp");
