@@ -19,6 +19,7 @@ export class Campfire extends PIXI.Container {
 			graphics.endFill();
 			graphics.x = Math.random() * settings.campfireWidth;
 			graphics.y = Math.random() * settings.fireHeight;
+			graphics.blendMode = PIXI.BLEND_MODES.ADD; // Set additive blending
 			// Store custom data for animation
 			(graphics as any).vy = Math.random() * 0.5;
 			(graphics as any).radius = Math.abs(graphics.x);
