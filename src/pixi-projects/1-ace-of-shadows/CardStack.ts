@@ -43,7 +43,7 @@ export class CardStack extends PIXI.Container {
 			strokeThickness: 4,
 			align: "center",
 		});
-		this.plusText.anchor.set(0.5, 0);
+		this.plusText.anchor.set(0, 0);
 		this.plusText.x = this.width / 2;
 		this.plusText.y = 0;
 		this.addChild(this.plusText);
