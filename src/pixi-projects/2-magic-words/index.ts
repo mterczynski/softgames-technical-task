@@ -12,6 +12,12 @@ declare global {
 
 export const tweenGroup = new Group();
 
+// --- Character Map ---
+const characterMap = new Map<string, Character>();
+let dialogueIndex = 0;
+let dialogueContainer: PIXI.Container | null = null;
+let currentSpeaker: Character | null = null;
+
 export async function init() {
 	const dataPromise = loadData();
 	const app = await initializeApp();
@@ -21,89 +27,30 @@ export async function init() {
 	app.stage.addChild(background);
 
 	// Create a map of characters by name
-	const characterMap = new Map<string, Character>();
+	characterMap.clear();
 	for (const avatar of data.avatars) {
 		const char = new Character(avatar.name, avatar.url);
-		// Move 30px closer to the center on x, and 20px higher on y
 		if (avatar.position === "left") {
 			char.x = 170;
 		} else {
 			char.x = app.screen.width - 350;
 		}
 		char.y = app.screen.height - 450;
-		// Do not add to stage yet
 		characterMap.set(avatar.name, char);
 	}
 
-	// --- Dialogue State ---
-	let dialogueIndex = 0;
-	let dialogueContainer: PIXI.Container | null = null;
-	let currentSpeaker: Character | null = null;
+	dialogueIndex = 0;
+	dialogueContainer = null;
+	currentSpeaker = null;
 
-	function clearDialogue() {
-		if (dialogueContainer) app.stage.removeChild(dialogueContainer);
-		if (currentSpeaker) {
-			app.stage.removeChild(currentSpeaker);
-			currentSpeaker = null;
-		}
-	}
+	showNextDialogue(app, data, background);
 
-	function getSpeaker(line: MagicWordsApiResponse["dialogue"][number]) {
-		const char = characterMap.get(line.name);
-		if (char) {
-			char.speak(line.text);
-			app.stage.addChild(char);
-			currentSpeaker = char;
-			return { char, displayName: line.name };
-		}
-		return { char: null, displayName: line.name };
-	}
-
-	function showNextDialogue() {
-		clearDialogue();
-		if (dialogueIndex >= data.dialogue.length) {
-			fadeOutBackgroundAndShowTheEnd(app, background);
-			return;
-		}
-		const line = data.dialogue[dialogueIndex];
-		const { char, displayName } = getSpeaker(line);
-		dialogueContainer = renderDialogueLine(
-			line.text,
-			data.emojies,
-			displayName,
-			!char,
-		);
-		dialogueContainer.x = 60;
-		dialogueContainer.y = char ? char.y - 80 : app.screen.height - 540;
-		app.stage.addChild(dialogueContainer);
-		dialogueIndex++;
-	}
-
-	// Show first dialogue
-	showNextDialogue();
-
-	// Advance dialogue on click (cast app.view to HTMLCanvasElement)
 	const canvas = app.view as HTMLCanvasElement;
-	canvas.addEventListener("pointerdown", showNextDialogue);
+	canvas.addEventListener("pointerdown", () =>
+		showNextDialogue(app, data, background),
+	);
 
 	return app;
-}
-
-async function loadData() {
-	const data = await fetch(settings.apiUrl);
-	const jsonDataPromise = data.json();
-
-	// preload avatars and emojies
-	jsonDataPromise.then((data: MagicWordsApiResponse) => {
-		data.avatars.forEach((avatar) => {
-			fetch(avatar.url);
-		});
-		data.emojies.forEach((emoji) => {
-			fetch(emoji.url);
-		});
-	});
-
-	return jsonDataPromise;
 }
 
 async function createBackground() {
@@ -134,6 +81,69 @@ async function initializeApp() {
 	});
 
 	return app;
+}
+
+async function loadData() {
+	const data = await fetch(settings.apiUrl);
+	const jsonDataPromise = data.json();
+
+	// preload avatars and emojies
+	jsonDataPromise.then((data: MagicWordsApiResponse) => {
+		data.avatars.forEach((avatar) => {
+			fetch(avatar.url);
+		});
+		data.emojies.forEach((emoji) => {
+			fetch(emoji.url);
+		});
+	});
+
+	return jsonDataPromise;
+}
+
+function clearDialogue(app: PIXI.Application) {
+	if (dialogueContainer) app.stage.removeChild(dialogueContainer);
+	if (currentSpeaker) {
+		app.stage.removeChild(currentSpeaker);
+		currentSpeaker = null;
+	}
+}
+
+function getSpeaker(
+	line: MagicWordsApiResponse["dialogue"][number],
+	app: PIXI.Application,
+) {
+	const char = characterMap.get(line.name);
+	if (char) {
+		char.speak(line.text);
+		app.stage.addChild(char);
+		currentSpeaker = char;
+		return { char, displayName: line.name };
+	}
+	return { char: null, displayName: line.name };
+}
+
+function showNextDialogue(
+	app: PIXI.Application,
+	data: MagicWordsApiResponse,
+	background: PIXI.Sprite,
+) {
+	clearDialogue(app);
+	if (dialogueIndex >= data.dialogue.length) {
+		fadeOutBackgroundAndShowTheEnd(app, background);
+		return;
+	}
+	const line = data.dialogue[dialogueIndex];
+	const { char, displayName } = getSpeaker(line, app);
+	dialogueContainer = renderDialogueLine(
+		line.text,
+		data.emojies,
+		displayName,
+		!char,
+	);
+	dialogueContainer.x = 60;
+	dialogueContainer.y = char ? char.y - 80 : app.screen.height - 540;
+	app.stage.addChild(dialogueContainer);
+	dialogueIndex++;
 }
 
 function renderDialogueLine(
