@@ -3,6 +3,7 @@ import { MagicWordsApiResponse } from "./apiTypes";
 import { Character } from "./Character";
 import { tweenGroup } from "./index";
 import TWEEN from "@tweenjs/tween.js";
+import { settings } from "./settings";
 
 export class DialogueManager {
 	private characterMap = new Map<string, Character>();
@@ -163,8 +164,7 @@ export class DialogueManager {
 	}
 
 	private fadeOutBackgroundAndShowTheEnd() {
-		const fadeDuration = 2000;
-		const theEndDuration = 3000;
+		const fadeDuration = settings.backgroundFadeOutDurationMs;
 		new TWEEN.Tween(this.background, tweenGroup)
 			.to({ alpha: 0 }, fadeDuration)
 			.easing(TWEEN.Easing.Quadratic.Out)
@@ -191,7 +191,7 @@ export class DialogueManager {
 		theEndText.alpha = 0;
 		this.app.stage.addChild(theEndText);
 		new TWEEN.Tween(theEndText, tweenGroup)
-			.to({ alpha: 1 }, 3000)
+			.to({ alpha: 1 }, settings.theEndFadeInDurationMs)
 			.easing(TWEEN.Easing.Quadratic.InOut)
 			.start();
 	}
