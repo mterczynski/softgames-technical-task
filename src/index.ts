@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import TWEEN, { Group } from '@tweenjs/tween.js';
 import { settings } from "./settings";
 import { CardStack } from "./CardStack";
 
@@ -6,6 +7,8 @@ import { CardStack } from "./CardStack";
 declare global {
   var __PIXI_APP__: PIXI.Application | undefined;
 }
+
+export const tweenGroup = new Group();
 
 export async function init() {
 	const app = await initializeApp();
@@ -19,7 +22,15 @@ export async function init() {
 	app.stage.addChild(cardStack);
 	app.stage.addChild(cardStack2);
 
+	runCardTransferLoop(cardStack, cardStack2);
+
 	return app
+}
+
+async function runCardTransferLoop(cardStack: CardStack, cardStack2: CardStack) {
+	while(cardStack.getLength() > 0) {
+		await cardStack.transferTopCardTo(cardStack2);
+	}
 }
 
 async function createBackground() {
@@ -43,6 +54,11 @@ async function initializeApp() {
 	const canvas = app.view as HTMLCanvasElement;
 	document.body.appendChild(canvas);
 	canvas.classList.add("main-canvas");
+
+	app.ticker.add(() => {
+		tweenGroup.update();
+	});
+
 	return app;
 }
 
