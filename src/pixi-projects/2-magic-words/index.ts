@@ -35,35 +35,38 @@ export async function init() {
 		characterMap.set(avatar.name, char);
 	}
 
-	// Dialogue display state
+	// --- Dialogue State ---
 	let dialogueIndex = 0;
 	let dialogueContainer: PIXI.Container | null = null;
 	let currentSpeaker: Character | null = null;
 
-	function showNextDialogue() {
-		if (dialogueContainer) {
-			app.stage.removeChild(dialogueContainer);
-		}
+	function clearDialogue() {
+		if (dialogueContainer) app.stage.removeChild(dialogueContainer);
 		if (currentSpeaker) {
 			app.stage.removeChild(currentSpeaker);
 			currentSpeaker = null;
 		}
-		if (dialogueIndex >= data.dialogue.length) {
-			// All dialogue finished: fade out background, then fade in "The end"
-			fadeOutBackgroundAndShowTheEnd(app, background);
-			return;
-		}
-		const line = data.dialogue[dialogueIndex];
+	}
+
+	function getSpeaker(line: MagicWordsApiResponse["dialogue"][number]) {
 		const char = characterMap.get(line.name);
-		let displayName = line.name;
 		if (char) {
 			char.speak(line.text);
 			app.stage.addChild(char);
 			currentSpeaker = char;
-		} else {
-			// Fallback: render name as text above the dialogue
-			displayName = line.name;
+			return { char, displayName: line.name };
 		}
+		return { char: null, displayName: line.name };
+	}
+
+	function showNextDialogue() {
+		clearDialogue();
+		if (dialogueIndex >= data.dialogue.length) {
+			fadeOutBackgroundAndShowTheEnd(app, background);
+			return;
+		}
+		const line = data.dialogue[dialogueIndex];
+		const { char, displayName } = getSpeaker(line);
 		dialogueContainer = renderDialogueLine(
 			line.text,
 			data.emojies,
@@ -71,12 +74,7 @@ export async function init() {
 			!char,
 		);
 		dialogueContainer.x = 60;
-		// Move the dialogue much lower, just above the character's head
-		if (char) {
-			dialogueContainer.y = char.y - 80; // 80px above character's y
-		} else {
-			dialogueContainer.y = app.screen.height - 540; // fallback for unknown character
-		}
+		dialogueContainer.y = char ? char.y - 80 : app.screen.height - 540;
 		app.stage.addChild(dialogueContainer);
 		dialogueIndex++;
 	}
