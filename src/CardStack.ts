@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { settings } from "./settings";
 import { Card } from "./Card";
-import TWEEN from '@tweenjs/tween.js';
+import TWEEN from "@tweenjs/tween.js";
 import { tweenGroup } from "./index";
 
 export class CardStack extends PIXI.Container {
@@ -14,7 +14,7 @@ export class CardStack extends PIXI.Container {
 		new Array(cardCount).fill(null).forEach((_, index) => {
 			const card = new Card();
 			this.addChild(card);
-			card.y = index * settings.cardGap // stack cards vertically
+			card.y = index * settings.cardGap;
 			return card;
 		});
 	}
@@ -26,8 +26,14 @@ export class CardStack extends PIXI.Container {
 	appendCard() {
 		const card = new Card();
 		this.addChild(card);
-		card.y = (this.getLength() - 1) * settings.cardGap; // stack cards vertically
+		card.y = (this.getLength() - 1) * settings.cardGap;
 		return card;
+	}
+
+	getHeight() {
+		return this.children.length > 0
+			? this.children.length * settings.cardGap + settings.cardHeight
+			: 0;
 	}
 
 	async transferTopCardTo(targetStack: CardStack) {
@@ -35,11 +41,15 @@ export class CardStack extends PIXI.Container {
 		const topCard = this.children[this.getLength() - 1] as Card;
 		targetStack.parent.addChild(topCard);
 
-		// Animate to target global position
-		await new Promise<void>(resolve => {
-			console.log('## tween started')
+		await new Promise<void>((resolve) => {
 			new TWEEN.Tween(topCard, tweenGroup)
-				.to({ x: targetStack.x, y: targetStack.y + targetStack.height }, 2000)
+				.to(
+					{
+						x: targetStack.x,
+						y: targetStack.y + targetStack.getHeight() - settings.cardHeight,
+					},
+					2000,
+				)
 				.easing(TWEEN.Easing.Quadratic.InOut)
 				.onComplete(() => {
 					targetStack.parent.removeChild(topCard);
