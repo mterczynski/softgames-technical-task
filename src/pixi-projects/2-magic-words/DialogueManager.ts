@@ -42,7 +42,12 @@ export class DialogueManager {
 		canvas.addEventListener("pointerdown", this.showNextDialogue);
 	}
 
-	public resizeCharacter(width: number, height: number) {
+	public onResize(width: number, height: number) {
+		this.resizeCharacter(width, height);
+		this.resizeDialogue(height);
+	}
+
+	private resizeCharacter(width: number, height: number) {
 		// Use a percentage of width, clamped to sensible min/max pixel values
 		const MIN_MARGIN_WIDTH_PERCENTAGE = 0.08;
 		const MIN_MARGIN_PX = 24;
@@ -64,7 +69,7 @@ export class DialogueManager {
 		}
 	}
 
-	public resizeDialogue(height: number) {
+	private resizeDialogue(height: number) {
 		// Move dialogue cloud if present
 		if (this.dialogueContainer && this.currentSpeaker) {
 			this.dialogueContainer.x = 60;
@@ -73,11 +78,6 @@ export class DialogueManager {
 			this.dialogueContainer.x = 60;
 			this.dialogueContainer.y = height - 540;
 		}
-	}
-
-	public onResize(width: number, height: number) {
-		this.resizeCharacter(width, height);
-		this.resizeDialogue(height);
 	}
 
 	private clearDialogue = () => {
