@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { MagicWordsApiResponse } from "./apiTypes";
-import { DialogueManager } from "./Dialogue";
+import { DialogueManager } from "./DialogueManager";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
