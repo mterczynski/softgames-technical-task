@@ -42,6 +42,44 @@ export class DialogueManager {
 		canvas.addEventListener("pointerdown", this.showNextDialogue);
 	}
 
+	public resizeCharacter(width: number, height: number) {
+		// Use a percentage of width, clamped to sensible min/max pixel values
+		const MIN_MARGIN_WIDTH_PERCENTAGE = 0.08;
+		const MIN_MARGIN_PX = 24;
+		const MAX_MARGIN = 120;
+		const CHARACTER_WIDTH = 128;
+		for (const [name, character] of this.characterMap) {
+			const avatar = this.data.avatars.find((a) => a.name === name);
+			if (!avatar) continue;
+			const margin = Math.max(
+				MIN_MARGIN_PX,
+				Math.min(width * MIN_MARGIN_WIDTH_PERCENTAGE, MAX_MARGIN),
+			);
+			if (avatar.position === "left") {
+				character.x = margin; // margin from left edge
+			} else {
+				character.x = width - CHARACTER_WIDTH - margin; // margin from right edge
+			}
+			character.y = height - 450;
+		}
+	}
+
+	public resizeDialogue(height: number) {
+		// Move dialogue cloud if present
+		if (this.dialogueContainer && this.currentSpeaker) {
+			this.dialogueContainer.x = 60;
+			this.dialogueContainer.y = this.currentSpeaker.y - 80;
+		} else if (this.dialogueContainer) {
+			this.dialogueContainer.x = 60;
+			this.dialogueContainer.y = height - 540;
+		}
+	}
+
+	public onResize(width: number, height: number) {
+		this.resizeCharacter(width, height);
+		this.resizeDialogue(height);
+	}
+
 	private clearDialogue = () => {
 		if (this.dialogueContainer)
 			this.app.stage.removeChild(this.dialogueContainer);

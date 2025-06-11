@@ -28,6 +28,17 @@ export async function init() {
 		stats?.update?.();
 	});
 
+	function resizeAll() {
+		app.renderer.resize(window.innerWidth, window.innerHeight);
+		background.width = app.renderer.width;
+		background.height = app.renderer.height;
+		if (dialogueManager.onResize) {
+			dialogueManager.onResize(app.renderer.width, app.renderer.height);
+		}
+	}
+	window.addEventListener("resize", resizeAll);
+	resizeAll();
+
 	return app;
 }
 
