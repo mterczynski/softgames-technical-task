@@ -5,6 +5,6 @@ export const settings = {
 	cardWidth: 83,
 	cardHeight: 115,
 	cardStackMaxVisible: 100,
-	flightDuration: 2000, // ms
-	transferInterval: 1000, // ms, delay between card transfers
+	flightDurationMs: 2000,
+	transferIntervalMs: 1000,
 };

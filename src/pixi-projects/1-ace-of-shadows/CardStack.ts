@@ -114,7 +114,7 @@ export class CardStack extends PIXI.Container {
 						x: targetStack.x,
 						y: targetStack.y + targetStack.getHeight(),
 					},
-					settings.flightDuration,
+					settings.flightDurationMs,
 				)
 				.easing(TWEEN.Easing.Quadratic.InOut)
 				.onComplete(() => {
