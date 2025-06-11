@@ -3,6 +3,7 @@ import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { MagicWordsApiResponse } from "./apiTypes";
 import { DialogueManager } from "./DialogueManager";
+import { addStatsJs } from "../addStatsJs";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -21,6 +22,11 @@ export async function init() {
 
 	const dialogueManager = new DialogueManager(app, data, background);
 	dialogueManager.start();
+
+	const stats = addStatsJs();
+	app.ticker.add(() => {
+		stats?.update?.();
+	});
 
 	return app;
 }

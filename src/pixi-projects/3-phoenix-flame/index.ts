@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { Campfire } from "./Campfire";
+import { addStatsJs } from "../addStatsJs";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -17,8 +18,10 @@ export async function init() {
 	campfire.x = settings.canvasWidth / 2;
 	campfire.y = settings.canvasHeight / 2;
 
+	const stats = addStatsJs();
 	app.ticker.add((delta) => {
 		campfire.updateParticles(delta);
+		stats?.update?.();
 	});
 
 	return app;

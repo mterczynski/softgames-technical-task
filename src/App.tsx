@@ -27,9 +27,14 @@ export const App: React.FC = () => {
 	if ([1, 2, 3].includes(selected)) {
 		return (
 			<div
+				id="pixi-back-btn"
 				style={{
 					fontSize: 40,
 					cursor: "pointer",
+					position: "fixed",
+					top: 60, // 0px for stats, 60px for button below
+					left: 16,
+					zIndex: 10001,
 				}}
 				onClick={() => setSelected(null)}
 			>

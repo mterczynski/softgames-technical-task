@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { CardStack } from "./CardStack";
+import { addStatsJs } from "../addStatsJs";
 
 // Allow globalThis.__PIXI_APP__ for Pixi devTools
 declare global {
@@ -13,7 +14,6 @@ export const tweenGroup = new Group();
 export async function init() {
 	const app = await initializeApp();
 	const background = await createBackground();
-	// Use property assignment for maxVisible after construction
 	const cardStack = new CardStack(144);
 	const cardStack2 = new CardStack(0);
 
@@ -23,6 +23,9 @@ export async function init() {
 	app.stage.addChild(background);
 	app.stage.addChild(cardStack);
 	app.stage.addChild(cardStack2);
+
+	const stats = addStatsJs();
+	app.ticker.add(() => stats?.update?.());
 
 	runCardTransferLoop(cardStack, cardStack2);
 
