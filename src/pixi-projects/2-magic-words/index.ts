@@ -46,8 +46,8 @@ async function createBackground() {
 	const url = "/assets/bbt-background.jpg";
 	await PIXI.Assets.load(url);
 	const background = PIXI.Sprite.from(url);
-	background.width = settings.canvasWidth;
-	background.height = settings.canvasHeight;
+	background.width = settings.initialCanvasWidth;
+	background.height = settings.initialCanvasHeight;
 	background.alpha = 0.35;
 
 	return background;
@@ -55,8 +55,8 @@ async function createBackground() {
 
 async function initializeApp() {
 	const app = new PIXI.Application({
-		width: settings.canvasWidth,
-		height: settings.canvasHeight,
+		width: settings.initialCanvasWidth,
+		height: settings.initialCanvasHeight,
 		view: document.createElement("canvas"),
 	});
 
