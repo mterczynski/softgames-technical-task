@@ -1,9 +1,9 @@
 import React from "react";
 
 const PROJECTS = [
-	{ id: 1, name: "Ace of Shadows" },
-	{ id: 2, name: "Magic Words" },
-	{ id: 3, name: "Phoenix Flame" },
+	{ id: 1, name: "♠️ Ace of Shadows ♠️" },
+	{ id: 2, name: "⚛️ Magic Words ⚛️" },
+	{ id: 3, name: "🔥 Phoenix Flame 🔥" },
 ];
 
 export const ProjectSelectionMenu: React.FC<{
