@@ -22,9 +22,6 @@ export class Campfire extends PIXI.Container {
 			particle.x = Math.random() * settings.campfireWidth;
 			particle.y = Math.random() * settings.fireHeight;
 			particle.blendMode = PIXI.BLEND_MODES.ADD; // Set additive blending
-			// Store custom data for animation
-			(particle as any).vy = Math.random() * 0.5;
-			(particle as any).radius = Math.abs(particle.x);
 			particle.alpha = 0;
 			this.addChild(particle);
 		}
@@ -32,11 +29,7 @@ export class Campfire extends PIXI.Container {
 
 	updateParticles(timeDelta: number) {
 		const updatedDelta = timeDelta * settings.speed;
-		for (const child of this.children) {
-			const particle = child as PIXI.Graphics & {
-				vy: number;
-				radius: number;
-			};
+		for (const particle of this.children) {
 			particle.position.y -=
 				Math.random() * 0.5 * settings.particleSpeed * updatedDelta;
 			particle.alpha -=
