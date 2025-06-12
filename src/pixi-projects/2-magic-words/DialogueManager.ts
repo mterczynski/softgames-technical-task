@@ -41,43 +41,27 @@ export class DialogueManager {
 		this.dialogueIndex = 0;
 		this.dialogueContainer = null;
 		this.currentSpeaker = null;
-		this.showNextDialogue();
+		// Only show the first dialogue, do not increment dialogueIndex
+		this.showDialogueAtIndex(0);
+		// Force a render to update bounds before any resize
+		this.app.renderer.render(this.app.stage);
 		const canvas = this.app.view as HTMLCanvasElement;
 		canvas.addEventListener("pointerdown", this.showNextDialogue);
 	}
 
-	public onResize(width: number, height: number) {
-		if (this.dialogueIndex >= this.data.dialogue.length) {
-			// At end screen, do not show any character or dialogue
-			this.clearDialogue(true);
-			// Also resize 'The end' text if present
-			if (this.theEndText) {
-				const fontSize = Math.max(32, Math.min(96, Math.floor(width * 0.08)));
-				this.theEndText.style = new PIXI.TextStyle({
-					fill: 0xffffff,
-					fontSize,
-					fontWeight: "bold",
-					fontFamily: "Arial",
-					align: "center",
-					dropShadow: true,
-					dropShadowColor: 0x000000,
-					dropShadowBlur: 8,
-				});
-				this.theEndText.x = width / 2;
-				this.theEndText.y = height / 2;
+	private showDialogueAtIndex = (idx: number) => {
+		this.clearDialogue();
+		if (idx >= this.data.dialogue.length) {
+			if (!this.hasShownTheEnd) {
+				this.hasShownTheEnd = true;
+				this.fadeOutBackgroundAndShowTheEnd();
 			}
 			return;
 		}
-		// Only reposition and re-layout the current dialogue/character, do not advance dialogue
-		const appWidth = width;
-		const appHeight = height;
-		if (!this.dialogueContainer) return;
-		const currentIndex = this.dialogueIndex;
-		// Re-render the current dialogue line
-		let lineIdx = currentIndex;
-		if (lineIdx > 0 && lineIdx <= this.data.dialogue.length) lineIdx--;
-		const line = this.data.dialogue[lineIdx];
-		const { character, displayName } = this.getSpeaker(line, false);
+		const line = this.data.dialogue[idx];
+		const { character, displayName } = this.getSpeaker(line);
+		const appWidth = this.app.screen.width;
+		const appHeight = this.app.screen.height;
 		const isMobile = appWidth < 600;
 		const marginX = isMobile ? 12 : 60;
 		const maxWidth = appWidth - marginX * 2;
@@ -88,39 +72,45 @@ export class DialogueManager {
 			!character,
 			maxWidth,
 		);
-		// Remove from stage if present
 		if (this.dialogueContainer.parent)
 			this.dialogueContainer.parent.removeChild(this.dialogueContainer);
-		// Position character and dialogue in mainContainer
 		this.mainContainer.removeChildren();
 		if (character) {
 			const avatar = this.data.avatars.find((a) => a.name === displayName);
-			const CHARACTER_WIDTH = character.width;
-			const groupWidth = Math.max(this.dialogueContainer.width, CHARACTER_WIDTH);
+			// Add children first, then force render to update bounds
+			this.mainContainer.addChild(this.dialogueContainer);
+			this.mainContainer.addChild(character);
+			this.app.renderer.render(this.app.stage); // Force update
+			const groupWidth = Math.max(this.dialogueContainer.width, character.width);
 			this.dialogueContainer.x = 0;
 			this.dialogueContainer.y = 0;
 			if (avatar?.position === "left") {
 				character.x = 0;
 			} else {
-				character.x = groupWidth - CHARACTER_WIDTH;
+				character.x = groupWidth - character.width;
 			}
 			character.y = this.dialogueContainer.height + 16;
+			// Remove and re-add in correct order
+			this.mainContainer.removeChildren();
 			this.mainContainer.addChild(this.dialogueContainer);
 			this.mainContainer.addChild(character);
-			this.mainContainer.width = groupWidth;
-			this.mainContainer.height = character.y + character.height;
-			this.mainContainer.x = (appWidth - groupWidth) / 2;
-			this.mainContainer.y = (appHeight - (character.y + character.height)) / 2;
+			this.app.renderer.render(this.app.stage); // Force update again after reordering
+			const groupHeight = character.y + character.height;
+			this.mainContainer.position.set(
+				(appWidth - groupWidth) / 2,
+				(appHeight - groupHeight) / 2,
+			);
 		} else {
 			this.dialogueContainer.x = 0;
 			this.dialogueContainer.y = 0;
 			this.mainContainer.addChild(this.dialogueContainer);
-			this.mainContainer.width = this.dialogueContainer.width;
-			this.mainContainer.height = this.dialogueContainer.height;
-			this.mainContainer.x = (appWidth - this.dialogueContainer.width) / 2;
-			this.mainContainer.y = (appHeight - this.dialogueContainer.height) / 2;
+			this.app.renderer.render(this.app.stage); // Force update
+			this.mainContainer.position.set(
+				(appWidth - this.dialogueContainer.width) / 2,
+				(appHeight - this.dialogueContainer.height) / 2,
+			);
 		}
-	}
+	};
 
 	private clearDialogue = (removeCharacter: boolean = true) => {
 		if (this.dialogueContainer)
@@ -145,70 +135,35 @@ export class DialogueManager {
 	}
 
 	private showNextDialogue = () => {
-		this.clearDialogue();
+		this.dialogueIndex++;
+		this.showDialogueAtIndex(this.dialogueIndex);
+	};
+
+	public onResize(width: number, height: number) {
 		if (this.dialogueIndex >= this.data.dialogue.length) {
-			if (!this.hasShownTheEnd) {
-				this.hasShownTheEnd = true;
-				this.fadeOutBackgroundAndShowTheEnd();
+			// At end screen, do not show any character or dialogue
+			this.clearDialogue(true);
+			// Also resize 'The end' text if present
+			if (this.theEndText) {
+				const fontSize = Math.max(32, Math.min(96, Math.floor(width * 0.08)));
+				this.theEndText.style = new PIXI.TextStyle({
+					fill: 0xffffff,
+					fontSize,
+					fontWeight: "bold",
+					fontFamily: "Arial",
+					align: "center",
+					dropShadow: true,
+					dropShadowColor: 0x000000,
+					dropShadowBlur: 8,
+				});
+				this.theEndText.x = width / 2;
+				this.theEndText.y = height / 2;
 			}
 			return;
 		}
-		const line = this.data.dialogue[this.dialogueIndex];
-		const { character: character, displayName } = this.getSpeaker(line);
-		const appWidth = this.app.screen.width;
-		const appHeight = this.app.screen.height;
-		// Responsive: use smaller margins and maxWidth on mobile
-		const isMobile = appWidth < 600;
-		const marginX = isMobile ? 12 : 60;
-		const maxWidth = appWidth - marginX * 2;
-		const offsetFromHead = 24;
-		this.dialogueContainer = this.renderDialogueLine(
-			line.text,
-			this.data.emojies,
-			displayName,
-			!character,
-			maxWidth,
-		);
-		// Remove from stage if present
-		if (this.dialogueContainer.parent)
-			this.dialogueContainer.parent.removeChild(this.dialogueContainer);
-		// Position character and dialogue in mainContainer
-		this.mainContainer.removeChildren();
-		if (character) {
-			const avatar = this.data.avatars.find((a) => a.name === displayName);
-			const CHARACTER_WIDTH = character.width;
-			const groupWidth = Math.max(this.dialogueContainer.width, CHARACTER_WIDTH);
-			// Dialogue always at top left of group
-			this.dialogueContainer.x = 0;
-			this.dialogueContainer.y = 0;
-			// Character below, left or right aligned
-			if (avatar?.position === "left") {
-				character.x = 0;
-			} else {
-				character.x = groupWidth - CHARACTER_WIDTH;
-			}
-			character.y = this.dialogueContainer.height + 16;
-			// Remove and add in correct order
-			this.mainContainer.removeChildren();
-			this.mainContainer.addChild(this.dialogueContainer);
-			this.mainContainer.addChild(character);
-			// Set mainContainer size to groupWidth/groupHeight for centering
-			this.mainContainer.width = groupWidth;
-			this.mainContainer.height = character.y + character.height;
-			this.mainContainer.x = (appWidth - groupWidth) / 2;
-			this.mainContainer.y = (appHeight - (character.y + character.height)) / 2;
-		} else {
-			this.dialogueContainer.x = 0;
-			this.dialogueContainer.y = 0;
-			this.mainContainer.removeChildren();
-			this.mainContainer.addChild(this.dialogueContainer);
-			this.mainContainer.width = this.dialogueContainer.width;
-			this.mainContainer.height = this.dialogueContainer.height;
-			this.mainContainer.x = (appWidth - this.dialogueContainer.width) / 2;
-			this.mainContainer.y = (appHeight - this.dialogueContainer.height) / 2;
-		}
-		this.dialogueIndex++;
-	};
+		// Re-layout the current dialogue/character using the same logic as showDialogueAtIndex
+		this.showDialogueAtIndex(this.dialogueIndex);
+	}
 
 	private renderDialogueLine(
 		text: string,
