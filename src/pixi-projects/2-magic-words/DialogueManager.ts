@@ -87,14 +87,20 @@ export class DialogueManager {
 			} else {
 				character.x = appWidth - CHARACTER_WIDTH - margin; // margin from right edge
 			}
-			character.y = appHeight - 400;
+			character.y = appHeight - (this.isMobile(appWidth) ? 400 : 460);
 		}
 	}
 
+	private isMobile(appWidth: number) {
+		return appWidth < 600;
+	}
+
+	private getMarginX(appWidth: number) {
+		return this.isMobile(appWidth) ? 12 : 60;
+	}
+
 	private resizeDialogue(appWidth: number, appHeight: number) {
-		// Responsive: use smaller margins and maxWidth on mobile
-		const isMobile = appWidth < 600;
-		const marginX = isMobile ? 12 : 60;
+		const marginX = this.getMarginX(appWidth);
 		const maxWidth = appWidth - marginX * 2;
 		const offsetFromHead = 10;
 		// Re-render dialogue cloud with new width if present
@@ -175,8 +181,7 @@ export class DialogueManager {
 		const appWidth = this.app.screen.width;
 		const appHeight = this.app.screen.height;
 		// Responsive: use smaller margins and maxWidth on mobile
-		const isMobile = appWidth < 600;
-		const marginX = isMobile ? 12 : 60;
+		const marginX = this.getMarginX(appWidth);
 		const maxWidth = appWidth - marginX * 2;
 		const offsetFromHead = 24;
 		this.dialogueContainer = this.renderDialogueLine(
