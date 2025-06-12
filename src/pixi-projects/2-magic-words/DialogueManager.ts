@@ -24,14 +24,14 @@ export class DialogueManager {
 	private createCharacterMap() {
 		this.characterMap.clear();
 		for (const avatar of this.data.avatars) {
-			const char = new Character(avatar.url);
+			const character = new Character(avatar.url);
 			if (avatar.position === "left") {
-				char.x = 170;
+				character.x = 170;
 			} else {
-				char.x = this.app.screen.width - 350;
+				character.x = this.app.screen.width - 350;
 			}
-			char.y = this.app.screen.height - 450;
-			this.characterMap.set(avatar.name, char);
+			character.y = this.app.screen.height - 450;
+			this.characterMap.set(avatar.name, character);
 		}
 	}
 
@@ -102,7 +102,7 @@ export class DialogueManager {
 		if (this.dialogueContainer && this.dialogueIndex > 0) {
 			// Get current dialogue line
 			const line = this.data.dialogue[this.dialogueIndex - 1];
-			const { char, displayName } = this.getSpeaker(line);
+			const { character: character, displayName } = this.getSpeaker(line);
 			// Remove old container
 			this.app.stage.removeChild(this.dialogueContainer);
 			// Re-render with new width
@@ -110,23 +110,23 @@ export class DialogueManager {
 				line.text,
 				this.data.emojies,
 				displayName,
-				!char,
+				!character,
 				maxWidth,
 			);
 			// Position dialogue cloud: left for left, right for right
 			if (
-				char &&
+				character &&
 				this.data.avatars.find((a) => a.name === displayName)?.position ===
 					"left"
 			) {
 				this.dialogueContainer.x = marginX;
 				this.dialogueContainer.y =
-					char.y - this.dialogueContainer.height - offsetFromHead;
-			} else if (char) {
+					character.y - this.dialogueContainer.height - offsetFromHead;
+			} else if (character) {
 				this.dialogueContainer.x =
 					appWidth - this.dialogueContainer.width - marginX;
 				this.dialogueContainer.y =
-					char.y - this.dialogueContainer.height - offsetFromHead;
+					character.y - this.dialogueContainer.height - offsetFromHead;
 			} else {
 				this.dialogueContainer.x = marginX;
 				this.dialogueContainer.y =
@@ -153,13 +153,13 @@ export class DialogueManager {
 		line: MagicWordsApiResponse["dialogue"][number],
 		addToStage: boolean = true,
 	) {
-		const char = this.characterMap.get(line.name);
-		if (char) {
-			if (addToStage) this.app.stage.addChild(char);
-			this.currentSpeaker = char;
-			return { char, displayName: line.name };
+		const character = this.characterMap.get(line.name);
+		if (character) {
+			if (addToStage) this.app.stage.addChild(character);
+			this.currentSpeaker = character;
+			return { character, displayName: line.name };
 		}
-		return { char: null, displayName: line.name };
+		return { character: null, displayName: line.name };
 	}
 
 	private showNextDialogue = () => {
@@ -172,34 +172,34 @@ export class DialogueManager {
 			return;
 		}
 		const line = this.data.dialogue[this.dialogueIndex];
-		const { char, displayName } = this.getSpeaker(line);
+		const { character: character, displayName } = this.getSpeaker(line);
 		const appWidth = this.app.screen.width;
 		const appHeight = this.app.screen.height;
 		// Responsive: use smaller margins and maxWidth on mobile
 		const isMobile = appWidth < 600;
 		const marginX = isMobile ? 12 : 60;
 		const maxWidth = appWidth - marginX * 2;
-		const offsetFromHead = isMobile ? 24 : 80;
+		const offsetFromHead = 24;
 		this.dialogueContainer = this.renderDialogueLine(
 			line.text,
 			this.data.emojies,
 			displayName,
-			!char,
+			!character,
 			maxWidth,
 		);
 		// Position dialogue cloud: left for left, right for right
 		if (
-			char &&
+			character &&
 			this.data.avatars.find((a) => a.name === displayName)?.position === "left"
 		) {
 			this.dialogueContainer.x = marginX;
 			this.dialogueContainer.y =
-				char.y - this.dialogueContainer.height - offsetFromHead;
-		} else if (char) {
+				character.y - this.dialogueContainer.height - offsetFromHead;
+		} else if (character) {
 			this.dialogueContainer.x =
 				appWidth - this.dialogueContainer.width - marginX;
 			this.dialogueContainer.y =
-				char.y - this.dialogueContainer.height - offsetFromHead;
+				character.y - this.dialogueContainer.height - offsetFromHead;
 		} else {
 			this.dialogueContainer.x = marginX;
 			this.dialogueContainer.y =
