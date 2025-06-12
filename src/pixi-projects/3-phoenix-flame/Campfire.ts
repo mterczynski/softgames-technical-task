@@ -37,12 +37,19 @@ export class Campfire extends PIXI.Container {
 			};
 			particle.position.y -=
 				Math.random() * 0.5 * settings.particleSpeed * updatedDelta;
-			particle.alpha -= 0.003 * settings.particleSpeed;
 			particle.alpha -=
-				0.00012 * Math.abs(particle.x - settings.campfireWidth / 2);
+				0.0001 *
+				settings.particleSpeed *
+				Math.abs(particle.x - settings.campfireWidth / 2) *
+				updatedDelta;
+			particle.alpha -=
+				0.0001 *
+				updatedDelta *
+				Math.abs(particle.x - settings.campfireWidth / 2);
 			if (particle.position.y <= 0) {
 				particle.position.y = settings.fireHeight;
 				particle.alpha = 1;
+				particle.position.x = Math.random() * settings.campfireWidth;
 			}
 		}
 	}
