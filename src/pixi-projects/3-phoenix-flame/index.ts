@@ -18,6 +18,17 @@ export async function init() {
 	campfire.x = settings.initialCanvasWidth / 2;
 	campfire.y = settings.initialCanvasHeight / 2;
 
+	// Make the canvas fullscreen and responsive
+	function resizeAll() {
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		app.renderer.resize(width, height);
+		campfire.x = width / 2;
+		campfire.y = height / 2;
+	}
+	window.addEventListener("resize", resizeAll);
+	resizeAll();
+
 	const stats = addStatsJs();
 	app.ticker.add((delta) => {
 		campfire.updateParticles(delta);
