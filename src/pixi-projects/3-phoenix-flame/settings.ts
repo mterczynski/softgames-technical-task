@@ -6,4 +6,6 @@ export const settings = {
 	particleSpeed: 1.2,
 	campfireWidth: 50,
 	fireHeight: 100,
+	minParticleSize: 4,
+	maxParticleSize: 8,
 };
