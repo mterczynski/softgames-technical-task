@@ -15,8 +15,8 @@ export async function init() {
 	const app = await initializeApp();
 	const campfire = new Campfire();
 	app.stage.addChild(campfire);
-	campfire.x = settings.canvasWidth / 2;
-	campfire.y = settings.canvasHeight / 2;
+	campfire.x = settings.initialCanvasWidth / 2;
+	campfire.y = settings.initialCanvasHeight / 2;
 
 	const stats = addStatsJs();
 	app.ticker.add((delta) => {
@@ -29,8 +29,8 @@ export async function init() {
 
 async function initializeApp() {
 	const app = new PIXI.Application({
-		width: settings.canvasWidth,
-		height: settings.canvasHeight,
+		width: settings.initialCanvasWidth,
+		height: settings.initialCanvasHeight,
 		view: document.createElement("canvas"),
 	});
 

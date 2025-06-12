@@ -65,16 +65,16 @@ async function createBackground() {
 	const backgroundUrl = "/assets/card table.webp";
 	await PIXI.Assets.load(backgroundUrl);
 	const background = PIXI.Sprite.from(backgroundUrl);
-	background.width = settings.canvasWidth;
-	background.height = settings.canvasHeight;
+	background.width = settings.initialCanvasWidth;
+	background.height = settings.initialCanvasHeight;
 
 	return background;
 }
 
 async function initializeApp() {
 	const app = new PIXI.Application({
-		width: settings.canvasWidth,
-		height: settings.canvasHeight,
+		width: settings.initialCanvasWidth,
+		height: settings.initialCanvasHeight,
 		view: document.createElement("canvas"),
 	});
 
