@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { MagicWordsApiResponse } from "./apiTypes";
 import { Character } from "./Character";
-import { tweenGroup } from "./index";
+import { globalTweenGroup } from "./index";
 import TWEEN from "@tweenjs/tween.js";
 import { settings } from "./settings";
 
@@ -322,7 +322,7 @@ export class DialogueManager {
 
 	private fadeOutBackgroundAndShowTheEnd() {
 		const fadeDuration = settings.backgroundFadeOutDurationMs;
-		new TWEEN.Tween(this.background, tweenGroup)
+		new TWEEN.Tween(this.background, globalTweenGroup)
 			.to({ alpha: 0 }, fadeDuration)
 			.easing(TWEEN.Easing.Quadratic.Out)
 			.onComplete(() => {
@@ -355,7 +355,7 @@ export class DialogueManager {
 		this.theEndText.y = appHeight / 2;
 		this.theEndText.alpha = 0;
 		this.app.stage.addChild(this.theEndText);
-		new TWEEN.Tween(this.theEndText, tweenGroup)
+		new TWEEN.Tween(this.theEndText, globalTweenGroup)
 			.to({ alpha: 1 }, settings.theEndFadeInDurationMs)
 			.easing(TWEEN.Easing.Quadratic.InOut)
 			.start();

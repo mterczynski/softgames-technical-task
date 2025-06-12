@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { settings } from "./settings";
 import { Card } from "./Card";
 import TWEEN from "@tweenjs/tween.js";
-import { tweenGroup } from "./index";
+import { globalTweenGroup } from "./index";
 
 export class CardStack extends PIXI.Container {
 	private maxVisible = settings.cardStackMaxVisible;
@@ -108,7 +108,7 @@ export class CardStack extends PIXI.Container {
 		}
 
 		await new Promise<void>((resolve) => {
-			new TWEEN.Tween(topCard, tweenGroup)
+			new TWEEN.Tween(topCard, globalTweenGroup)
 				.to(
 					{
 						x: targetStack.x,

@@ -6,7 +6,7 @@ import * as PIXI from "pixi.js";
  */
 export interface FullscreenPixiAppOptions
 	extends Partial<Omit<PIXI.IApplicationOptions, "view">> {
-	tweenGroup?: { update: () => void };
+	globalTweenGroup?: { update: () => void };
 }
 
 export function createFullscreenPixiApp(options?: FullscreenPixiAppOptions) {
@@ -33,9 +33,9 @@ export function createFullscreenPixiApp(options?: FullscreenPixiAppOptions) {
 	window.addEventListener("resize", resizeAll);
 	resizeAll();
 
-	if (opts.tweenGroup) {
+	if (opts.globalTweenGroup) {
 		app.ticker.add(() => {
-			opts.tweenGroup!.update();
+			opts.globalTweenGroup!.update();
 		});
 	}
 

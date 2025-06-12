@@ -4,13 +4,14 @@ import { Campfire } from "./Campfire";
 import { addStatsJs } from "../addStatsJs";
 import { createFullscreenPixiApp } from "../createFullscreenPixiApp";
 
-export const tweenGroup = new Group();
+/** Global tween group for updating all tweens, can be refactored */
+export const globalTweenGroup = new Group();
 
 export async function init() {
 	const { app } = createFullscreenPixiApp({
 		width: settings.initialCanvasWidth,
 		height: settings.initialCanvasHeight,
-		tweenGroup,
+		globalTweenGroup: globalTweenGroup,
 	});
 	const campfire = new Campfire();
 	app.stage.addChild(campfire);
