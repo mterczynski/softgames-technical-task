@@ -4,7 +4,7 @@ set -e
 
 # This line determines the absolute path to the directory containing this script, regardless of where the script is called from.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR" && pwd)"
 
 cd "$REPO_ROOT"
 # 1. Reinstall, test, build
