@@ -4,17 +4,19 @@ import { settings } from "./settings";
 import { MagicWordsApiResponse } from "./apiTypes";
 import { DialogueManager } from "./DialogueManager";
 import { addStatsJs } from "../addStatsJs";
+import { createFullscreenPixiApp } from "../createFullscreenPixiApp";
 
 export const tweenGroup = new Group();
 
 export async function init() {
-	const dataPromise = loadData();
-	const app = await initializeApp();
+	const { app } = createFullscreenPixiApp({
+		width: settings.initialCanvasWidth,
+		height: settings.initialCanvasHeight,
+		tweenGroup,
+	});
 	const background = await createBackground();
-	const data: MagicWordsApiResponse = await dataPromise;
-
+	const data: MagicWordsApiResponse = await loadData();
 	app.stage.addChild(background);
-
 	const dialogueManager = new DialogueManager(app, data, background);
 	dialogueManager.start();
 
@@ -24,7 +26,6 @@ export async function init() {
 	});
 
 	function resizeAll() {
-		app.renderer.resize(window.innerWidth, window.innerHeight);
 		background.width = app.renderer.width;
 		background.height = app.renderer.height;
 		if (dialogueManager.onResize) {
@@ -46,26 +47,6 @@ async function createBackground() {
 	background.alpha = 0.35;
 
 	return background;
-}
-
-async function initializeApp() {
-	const app = new PIXI.Application({
-		width: settings.initialCanvasWidth,
-		height: settings.initialCanvasHeight,
-		view: document.createElement("canvas"),
-	});
-
-	globalThis.__PIXI_APP__ = app;
-
-	const canvas = app.view as HTMLCanvasElement;
-	document.body.appendChild(canvas);
-	canvas.classList.add("main-canvas");
-
-	app.ticker.add(() => {
-		tweenGroup.update();
-	});
-
-	return app;
 }
 
 async function loadData() {

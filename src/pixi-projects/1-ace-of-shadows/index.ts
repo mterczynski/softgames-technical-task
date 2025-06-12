@@ -3,20 +3,23 @@ import { Group } from "@tweenjs/tween.js";
 import { settings } from "./settings";
 import { CardStack } from "./CardStack";
 import { addStatsJs } from "../addStatsJs";
+import { createFullscreenPixiApp } from "../createFullscreenPixiApp";
 
 export const tweenGroup = new Group();
 
 export async function init() {
-	const app = await initializeApp();
+	const { app } = createFullscreenPixiApp({
+		width: settings.initialCanvasWidth,
+		height: settings.initialCanvasHeight,
+		tweenGroup,
+	});
 	const background = await createBackground();
 	const cardStacks = new PIXI.Container();
 	const cardStack = new CardStack(144);
 	const cardStack2 = new CardStack(0);
 	cardStacks.addChild(cardStack);
 	cardStacks.addChild(cardStack2);
-
 	cardStack2.x = 100;
-
 	app.stage.addChild(background);
 	app.stage.addChild(cardStacks);
 
@@ -26,19 +29,14 @@ export async function init() {
 	runCardTransferLoop(cardStack, cardStack2);
 
 	const onResize = () => {
-		const width = window.innerWidth;
-		const height = window.innerHeight;
-		app.renderer.resize(width, height);
+		const width = app.renderer.width;
+		const height = app.renderer.height;
 		background.width = width;
 		background.height = height;
-
 		cardStacks.x = settings.cardStacksOffset.x;
 		cardStacks.y = settings.cardStacksOffset.y;
 	};
-
-	// Responsive: handle window resize for card stacks and background
 	window.addEventListener("resize", onResize);
-
 	onResize();
 
 	return app;
@@ -64,24 +62,4 @@ async function createBackground() {
 	background.height = settings.initialCanvasHeight;
 
 	return background;
-}
-
-async function initializeApp() {
-	const app = new PIXI.Application({
-		width: settings.initialCanvasWidth,
-		height: settings.initialCanvasHeight,
-		view: document.createElement("canvas"),
-	});
-
-	globalThis.__PIXI_APP__ = app;
-
-	const canvas = app.view as HTMLCanvasElement;
-	document.body.appendChild(canvas);
-	canvas.classList.add("main-canvas");
-
-	app.ticker.add(() => {
-		tweenGroup.update();
-	});
-
-	return app;
 }
