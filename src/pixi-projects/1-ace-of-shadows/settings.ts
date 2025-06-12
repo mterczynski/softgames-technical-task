@@ -7,4 +7,8 @@ export const settings = {
 	cardStackMaxVisible: 100,
 	flightDurationMs: 2000,
 	transferIntervalMs: 1000,
+	cardStacksOffset: {
+		x: 100,
+		y: 100,
+	},
 };

@@ -88,8 +88,8 @@ export class CardStack extends PIXI.Container {
 		const topCard = visibleCards[visibleCards.length - 1] as Card;
 		const globalPosition = this.toGlobal(new PIXI.Point(topCard.x, topCard.y));
 		targetStack.parent.addChild(topCard);
-		topCard.x = globalPosition.x;
-		topCard.y = globalPosition.y;
+		topCard.x = globalPosition.x - settings.cardStacksOffset.x;
+		topCard.y = globalPosition.y - settings.cardStacksOffset.y;
 
 		// Only decrement plusText once per transfer, and do not call init here
 		let skipRemove = false;

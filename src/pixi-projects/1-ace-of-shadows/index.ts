@@ -14,20 +14,37 @@ export const tweenGroup = new Group();
 export async function init() {
 	const app = await initializeApp();
 	const background = await createBackground();
+	const cardStacks = new PIXI.Container();
 	const cardStack = new CardStack(144);
 	const cardStack2 = new CardStack(0);
+	cardStacks.addChild(cardStack);
+	cardStacks.addChild(cardStack2);
 
-	cardStack.x = 300;
-	cardStack2.x = 400;
+	cardStack2.x = 100;
 
 	app.stage.addChild(background);
-	app.stage.addChild(cardStack);
-	app.stage.addChild(cardStack2);
+	app.stage.addChild(cardStacks);
 
 	const stats = addStatsJs();
 	app.ticker.add(() => stats?.update?.());
 
 	runCardTransferLoop(cardStack, cardStack2);
+
+	const onResize = () => {
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		app.renderer.resize(width, height);
+		background.width = width;
+		background.height = height;
+
+		cardStacks.x = settings.cardStacksOffset.x;
+		cardStacks.y = settings.cardStacksOffset.y;
+	};
+
+	// Responsive: handle window resize for card stacks and background
+	window.addEventListener("resize", onResize);
+
+	onResize();
 
 	return app;
 }
