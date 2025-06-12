@@ -4,11 +4,6 @@ import { settings } from "./settings";
 import { CardStack } from "./CardStack";
 import { addStatsJs } from "../addStatsJs";
 
-// Allow globalThis.__PIXI_APP__ for Pixi devTools
-declare global {
-	var __PIXI_APP__: PIXI.Application | undefined;
-}
-
 export const tweenGroup = new Group();
 
 export async function init() {
