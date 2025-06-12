@@ -2,10 +2,10 @@ export const settings = {
 	initialCanvasWidth: 960,
 	initialCanvasHeight: 800,
 	particleCount: 10,
-	speed: 24, // overall speed
+	speed: 23, // overall speed
 	particleSpeed: 1.2,
 	campfireWidth: 50,
 	fireHeight: 100,
-	minParticleSize: 4,
-	maxParticleSize: 8,
+	minParticleSize: 5,
+	maxParticleSize: 10,
 };
