@@ -87,7 +87,7 @@ export class DialogueManager {
 			} else {
 				character.x = appWidth - CHARACTER_WIDTH - margin; // margin from right edge
 			}
-			character.y = appHeight - (this.isMobile(appWidth) ? 400 : 460);
+			character.y = appHeight - (this.isMobile(appWidth) ? 360 : 460);
 		}
 	}
 
