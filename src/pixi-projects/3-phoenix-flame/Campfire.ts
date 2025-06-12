@@ -36,7 +36,7 @@ export class Campfire extends PIXI.Container {
 		const glow = new PIXI.Graphics();
 		const glowWidth = settings.campfireWidth * 1.1; // much smaller
 		const glowHeight = settings.campfireWidth * 0.28; // much smaller
-		glow.beginFill(0xffe066, 0.1); // warm yellow
+		glow.beginFill(0xff8066, 0.1); // warm yellow
 		glow.drawEllipse(0, 0, glowWidth, glowHeight);
 		glow.endFill();
 		const outerGlow = new PIXI.Graphics();
