@@ -39,7 +39,7 @@ export async function init() {
 }
 
 async function createBackground() {
-	const url = "/assets/bbt-background.jpg";
+	const url = "./assets/bbt-background.jpg";
 	await PIXI.Assets.load(url);
 	const background = PIXI.Sprite.from(url);
 	background.width = settings.initialCanvasWidth;

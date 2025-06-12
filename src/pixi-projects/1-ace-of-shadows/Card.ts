@@ -8,7 +8,7 @@ export class Card extends PIXI.Container {
 	}
 
 	private async init() {
-		const url = "/assets/card.png";
+		const url = "./assets/card.png";
 
 		await PIXI.Assets.load(url);
 		const texture = PIXI.Texture.from(url);

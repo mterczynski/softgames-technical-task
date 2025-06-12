@@ -55,7 +55,7 @@ async function runCardTransferLoop(
 }
 
 async function createBackground() {
-	const backgroundUrl = "/assets/card table.webp";
+	const backgroundUrl = "./assets/card table.webp";
 	await PIXI.Assets.load(backgroundUrl);
 	const background = PIXI.Sprite.from(backgroundUrl);
 	background.width = settings.initialCanvasWidth;
