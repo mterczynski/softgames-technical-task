@@ -11,6 +11,7 @@ export class DialogueManager {
 	private dialogueContainer: PIXI.Container | null = null;
 	private currentSpeaker: Character | null = null;
 	private theEndText: PIXI.Text | null = null;
+	private hasShownTheEnd = false;
 
 	constructor(
 		private app: PIXI.Application,
@@ -164,7 +165,10 @@ export class DialogueManager {
 	private showNextDialogue = () => {
 		this.clearDialogue();
 		if (this.dialogueIndex >= this.data.dialogue.length) {
-			this.fadeOutBackgroundAndShowTheEnd();
+			if (!this.hasShownTheEnd) {
+				this.hasShownTheEnd = true;
+				this.fadeOutBackgroundAndShowTheEnd();
+			}
 			return;
 		}
 		const line = this.data.dialogue[this.dialogueIndex];
