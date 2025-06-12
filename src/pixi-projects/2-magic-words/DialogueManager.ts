@@ -30,7 +30,6 @@ export class DialogueManager {
 			} else {
 				character.x = this.app.screen.width - 350;
 			}
-			character.y = this.app.screen.height - 450;
 			this.characterMap.set(avatar.name, character);
 		}
 	}
