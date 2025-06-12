@@ -6,6 +6,8 @@ export const settings = {
 	particleSpeed: 1.2,
 	campfireWidth: 50,
 	fireHeight: 100,
+	verticalFadeOutMultiplier: 0.002,
+	horizontalFadeOutMultiplier: 0.0001,
 	minParticleSize: 5,
 	maxParticleSize: 10,
 };

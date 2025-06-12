@@ -33,12 +33,11 @@ export class Campfire extends PIXI.Container {
 			particle.position.y -=
 				Math.random() * 0.5 * settings.particleSpeed * updatedDelta;
 			particle.alpha -=
-				0.0001 *
+				settings.verticalFadeOutMultiplier *
 				settings.particleSpeed *
-				Math.abs(particle.x - settings.campfireWidth / 2) *
 				updatedDelta;
 			particle.alpha -=
-				0.0001 *
+				settings.horizontalFadeOutMultiplier *
 				updatedDelta *
 				Math.abs(particle.x - settings.campfireWidth / 2);
 			if (particle.position.y <= 0) {
