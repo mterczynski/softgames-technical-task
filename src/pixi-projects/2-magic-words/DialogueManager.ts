@@ -12,6 +12,7 @@ export class DialogueManager {
 	private currentSpeaker: Character | null = null;
 	private theEndText: PIXI.Text | null = null;
 	private hasShownTheEnd = false;
+	private mainContainer: PIXI.Container = new PIXI.Container();
 
 	constructor(
 		private app: PIXI.Application,
@@ -19,6 +20,7 @@ export class DialogueManager {
 		private background: PIXI.Sprite,
 	) {
 		this.createCharacterMap();
+		this.app.stage.addChild(this.mainContainer);
 	}
 
 	private createCharacterMap() {
@@ -66,85 +68,65 @@ export class DialogueManager {
 			}
 			return;
 		}
-		this.resizeCharacter(width, height);
-		this.resizeDialogue(width, height);
-	}
-
-	private resizeCharacter(appWidth: number, appHeight: number) {
-		// Use a percentage of width, clamped to sensible min/max pixel values
-		const MIN_MARGIN_WIDTH_PERCENTAGE = 0.08;
-		const MIN_MARGIN_PX = 24;
-		const MAX_MARGIN = 120;
-		const CHARACTER_WIDTH = 128;
-		for (const [name, character] of this.characterMap) {
-			const avatar = this.data.avatars.find((a) => a.name === name);
-			if (!avatar) continue;
-			const margin = Math.max(
-				MIN_MARGIN_PX,
-				Math.min(appWidth * MIN_MARGIN_WIDTH_PERCENTAGE, MAX_MARGIN),
-			);
-			if (avatar.position === "left") {
-				character.x = margin; // margin from left edge
-			} else {
-				character.x = appWidth - CHARACTER_WIDTH - margin; // margin from right edge
-			}
-			character.y = appHeight - 450;
-		}
-	}
-
-	private resizeDialogue(appWidth: number, appHeight: number) {
-		// Responsive: use smaller margins and maxWidth on mobile
+		// Only reposition and re-layout the current dialogue/character, do not advance dialogue
+		const appWidth = width;
+		const appHeight = height;
+		if (!this.dialogueContainer) return;
+		const currentIndex = this.dialogueIndex;
+		// Re-render the current dialogue line
+		let lineIdx = currentIndex;
+		if (lineIdx > 0 && lineIdx <= this.data.dialogue.length) lineIdx--;
+		const line = this.data.dialogue[lineIdx];
+		const { character, displayName } = this.getSpeaker(line, false);
 		const isMobile = appWidth < 600;
 		const marginX = isMobile ? 12 : 60;
 		const maxWidth = appWidth - marginX * 2;
-		const offsetFromHead = 10;
-		// Re-render dialogue cloud with new width if present
-		if (this.dialogueContainer && this.dialogueIndex > 0) {
-			// Get current dialogue line
-			const line = this.data.dialogue[this.dialogueIndex - 1];
-			const { character: character, displayName } = this.getSpeaker(line);
-			// Remove old container
-			this.app.stage.removeChild(this.dialogueContainer);
-			// Re-render with new width
-			this.dialogueContainer = this.renderDialogueLine(
-				line.text,
-				this.data.emojies,
-				displayName,
-				!character,
-				maxWidth,
-			);
-			// Position dialogue cloud: left for left, right for right
-			if (
-				character &&
-				this.data.avatars.find((a) => a.name === displayName)?.position ===
-					"left"
-			) {
-				this.dialogueContainer.x = marginX;
-				this.dialogueContainer.y =
-					character.y - this.dialogueContainer.height - offsetFromHead;
-			} else if (character) {
-				this.dialogueContainer.x =
-					appWidth - this.dialogueContainer.width - marginX;
-				this.dialogueContainer.y =
-					character.y - this.dialogueContainer.height - offsetFromHead;
+		this.dialogueContainer = this.renderDialogueLine(
+			line.text,
+			this.data.emojies,
+			displayName,
+			!character,
+			maxWidth,
+		);
+		// Remove from stage if present
+		if (this.dialogueContainer.parent)
+			this.dialogueContainer.parent.removeChild(this.dialogueContainer);
+		// Position character and dialogue in mainContainer
+		this.mainContainer.removeChildren();
+		if (character) {
+			const avatar = this.data.avatars.find((a) => a.name === displayName);
+			const CHARACTER_WIDTH = character.width;
+			const groupWidth = Math.max(this.dialogueContainer.width, CHARACTER_WIDTH);
+			this.dialogueContainer.x = 0;
+			this.dialogueContainer.y = 0;
+			if (avatar?.position === "left") {
+				character.x = 0;
 			} else {
-				this.dialogueContainer.x = marginX;
-				this.dialogueContainer.y =
-					(appHeight - this.dialogueContainer.height) / 2; // Center the dialogue cloud vertically if there is no character
+				character.x = groupWidth - CHARACTER_WIDTH;
 			}
-			this.app.stage.addChild(this.dialogueContainer);
-		} else if (this.dialogueContainer) {
-			this.dialogueContainer.x = marginX;
-			this.dialogueContainer.y =
-				appHeight - this.dialogueContainer.height - offsetFromHead;
+			character.y = this.dialogueContainer.height + 16;
+			this.mainContainer.addChild(this.dialogueContainer);
+			this.mainContainer.addChild(character);
+			this.mainContainer.width = groupWidth;
+			this.mainContainer.height = character.y + character.height;
+			this.mainContainer.x = (appWidth - groupWidth) / 2;
+			this.mainContainer.y = (appHeight - (character.y + character.height)) / 2;
+		} else {
+			this.dialogueContainer.x = 0;
+			this.dialogueContainer.y = 0;
+			this.mainContainer.addChild(this.dialogueContainer);
+			this.mainContainer.width = this.dialogueContainer.width;
+			this.mainContainer.height = this.dialogueContainer.height;
+			this.mainContainer.x = (appWidth - this.dialogueContainer.width) / 2;
+			this.mainContainer.y = (appHeight - this.dialogueContainer.height) / 2;
 		}
 	}
 
 	private clearDialogue = (removeCharacter: boolean = true) => {
 		if (this.dialogueContainer)
-			this.app.stage.removeChild(this.dialogueContainer);
+			this.mainContainer.removeChild(this.dialogueContainer);
 		if (removeCharacter && this.currentSpeaker) {
-			this.app.stage.removeChild(this.currentSpeaker);
+			this.mainContainer.removeChild(this.currentSpeaker);
 			this.currentSpeaker = null;
 		}
 	};
@@ -155,7 +137,7 @@ export class DialogueManager {
 	) {
 		const character = this.characterMap.get(line.name);
 		if (character) {
-			if (addToStage) this.app.stage.addChild(character);
+			if (addToStage) this.mainContainer.addChild(character);
 			this.currentSpeaker = character;
 			return { character, displayName: line.name };
 		}
@@ -187,27 +169,45 @@ export class DialogueManager {
 			!character,
 			maxWidth,
 		);
-		// Position dialogue cloud: left for left, right for right
-		if (
-			character &&
-			this.data.avatars.find((a) => a.name === displayName)?.position === "left"
-		) {
-			this.dialogueContainer.x = marginX;
-			this.dialogueContainer.y =
-				character.y - this.dialogueContainer.height - offsetFromHead;
-		} else if (character) {
-			this.dialogueContainer.x =
-				appWidth - this.dialogueContainer.width - marginX;
-			this.dialogueContainer.y =
-				character.y - this.dialogueContainer.height - offsetFromHead;
+		// Remove from stage if present
+		if (this.dialogueContainer.parent)
+			this.dialogueContainer.parent.removeChild(this.dialogueContainer);
+		// Position character and dialogue in mainContainer
+		this.mainContainer.removeChildren();
+		if (character) {
+			const avatar = this.data.avatars.find((a) => a.name === displayName);
+			const CHARACTER_WIDTH = character.width;
+			const groupWidth = Math.max(this.dialogueContainer.width, CHARACTER_WIDTH);
+			// Dialogue always at top left of group
+			this.dialogueContainer.x = 0;
+			this.dialogueContainer.y = 0;
+			// Character below, left or right aligned
+			if (avatar?.position === "left") {
+				character.x = 0;
+			} else {
+				character.x = groupWidth - CHARACTER_WIDTH;
+			}
+			character.y = this.dialogueContainer.height + 16;
+			// Remove and add in correct order
+			this.mainContainer.removeChildren();
+			this.mainContainer.addChild(this.dialogueContainer);
+			this.mainContainer.addChild(character);
+			// Set mainContainer size to groupWidth/groupHeight for centering
+			this.mainContainer.width = groupWidth;
+			this.mainContainer.height = character.y + character.height;
+			this.mainContainer.x = (appWidth - groupWidth) / 2;
+			this.mainContainer.y = (appHeight - (character.y + character.height)) / 2;
 		} else {
-			this.dialogueContainer.x = marginX;
-			this.dialogueContainer.y =
-				(appHeight - this.dialogueContainer.height) / 2; // Center the dialogue cloud vertically if there is no character
+			this.dialogueContainer.x = 0;
+			this.dialogueContainer.y = 0;
+			this.mainContainer.removeChildren();
+			this.mainContainer.addChild(this.dialogueContainer);
+			this.mainContainer.width = this.dialogueContainer.width;
+			this.mainContainer.height = this.dialogueContainer.height;
+			this.mainContainer.x = (appWidth - this.dialogueContainer.width) / 2;
+			this.mainContainer.y = (appHeight - this.dialogueContainer.height) / 2;
 		}
-		this.app.stage.addChild(this.dialogueContainer);
 		this.dialogueIndex++;
-		this.resizeDialogue(appWidth, appHeight);
 	};
 
 	private renderDialogueLine(
